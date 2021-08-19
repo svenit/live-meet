@@ -10,7 +10,7 @@ import { Reflector } from '@nestjs/core';
 import * as jwt from 'jsonwebtoken';
 
 @Injectable()
-export class AuthGateWay implements CanActivate {
+export class AuthGuard implements CanActivate {
   public constructor(private readonly reflector: Reflector) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -18,7 +18,6 @@ export class AuthGateWay implements CanActivate {
       'isPublic',
       context.getHandler(),
     );
-    console.log(isPublic);
     if (isPublic) return true;
     const request = context.switchToHttp().getRequest();
     if (!request.headers?.authorization) {

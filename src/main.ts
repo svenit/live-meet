@@ -1,6 +1,6 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { AuthGateWay } from './guards/auth.gateway';
+import { AuthGuard } from './guards';
 import { logger } from './middlewares';
 import { ValidationPipe } from './pipes';
 
@@ -9,7 +9,7 @@ async function bootstrap() {
   const reflector = app.get(Reflector);
   app.use(logger);
   app.useGlobalPipes(new ValidationPipe());
-  app.useGlobalGuards(new AuthGateWay(reflector));
+  app.useGlobalGuards(new AuthGuard(reflector));
   await app.listen(3000);
 }
 

@@ -1,4 +1,4 @@
-import { SocketGuard } from '@/guards/socket.guard';
+import { SocketGuard } from '@/guards';
 import { Logger, UseGuards } from '@nestjs/common';
 import {
   OnGatewayConnection,
