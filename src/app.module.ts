@@ -5,10 +5,11 @@ import {
   RequestMethod,
 } from '@nestjs/common';
 import { UserModule } from '@/api/auth/auth.module';
-import { AuthMiddleware } from '@/middlewares/auth.middleware';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { APP_FILTER } from '@nestjs/core';
-import { HttpErrorFilter } from './filters/httpError.filter';
+import { AuthMiddleware } from './middlewares';
+import { HttpErrorFilter } from './filters';
+import { AppGateway } from './gateways/app.gateway';
 @Module({
   imports: [UserModule, TypeOrmModule.forRoot()],
   controllers: [],
@@ -17,6 +18,7 @@ import { HttpErrorFilter } from './filters/httpError.filter';
       provide: APP_FILTER,
       useClass: HttpErrorFilter,
     },
+    AppGateway,
   ],
 })
 export class AppModule implements NestModule {

@@ -1,4 +1,4 @@
-import { Same } from '@/decorator/validator.decorator';
+import { Same } from '@/decorator';
 import {
   IsEmail,
   IsNotEmpty,
@@ -6,13 +6,6 @@ import {
   Length,
   Matches,
 } from 'class-validator';
-
-export interface UserDTO {
-  username?: string;
-  email?: string;
-  fullName?: string;
-}
-
 export class LoginDTO {
   @IsNotEmpty()
   username: string;
