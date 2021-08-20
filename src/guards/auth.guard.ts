@@ -30,7 +30,7 @@ export class AuthGuard implements CanActivate {
   async validateToken(request: Request | any) {
     const [authType, jwtToken] = request.headers.authorization.split(' ');
     if (authType !== 'Bearer') {
-      throw new HttpException('Invalid token', HttpStatus.FORBIDDEN);
+      throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
     }
     try {
       const decodedToken = jwt.verify(jwtToken, config.app.appSecret);
@@ -38,7 +38,7 @@ export class AuthGuard implements CanActivate {
     } catch (err) {
       throw new HttpException(
         'Token expired or does not exists',
-        HttpStatus.FORBIDDEN,
+        HttpStatus.UNAUTHORIZED,
       );
     }
   }

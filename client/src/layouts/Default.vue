@@ -1,20 +1,27 @@
 <template>
-  <div id="master-layout" class="slide-fade-enter-active">
-    <transition>
+  <div id="master-layout">
+    <Header />
+    <div class="content-page">
       <router-view :key="$route.fullPath" />
-    </transition>
+    </div>
   </div>
 </template>
-<style scoped>
-.slide-fade-enter-active {
-  transition: all 0.2s ease-out;
+<script>
+import Header from '@/components/layouts/Header';
+export default {
+  components: {
+    Header,
+  },
+};
+</script>
+<style>
+.content-page {
+  background: #f3f6f9 !important;
+  min-height: calc(100vh - 46px);
 }
-.slide-fade-leave-active {
-  transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
-}
-.slide-fade-enter,
-.slide-fade-leave-to {
-  transform: translateX(10px);
-  opacity: 0;
+.layout-container {
+  width: 960px;
+  margin: 0 auto;
+  height: 100%;
 }
 </style>

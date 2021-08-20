@@ -1,0 +1,88 @@
+.login-container {
+  overflow: hidden;
+  width: 960px;
+  height: 640px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 12px;
+  box-shadow: 0 4px 40px rgb(0 0 0 / 15%);
+}
+.login-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.login-panel-content {
+  height: 100%;
+  width: 50%;
+  position: relative;
+  background: #fff;
+  overflow: hidden;
+}
+.login-panel-inner-bg-bottom-left {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+.login-panel-inner-content-container {
+  margin-top: -50px;
+}
+.login-content-logo {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  margin-bottom: 20px;
+}
+.login-content-logo img {
+  width: 96px;
+  height: 96px;
+  margin: 0 auto;
+  margin-bottom: 16px;
+}
+.login-content-title {
+  font-size: 22px;
+  font-weight: 500;
+  color: #444e60;
+  margin-bottom: 4px;
+}
+.login-content-text {
+  font-size: 15px;
+  color: #7a7b7c;
+}
+.login-form {
+  width: 300px;
+  margin: 0 auto;
+}
+
+.login-form-item >>> .ant-input,
+.login-form-item >>> button {
+  height: 42px !important;
+}
+
+.login-form >>> .ant-form-explain {
+  margin: 6px 0px 5px 0px;
+}
+
+.login-panel-inner-bg-bottom-right {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+.login-panel-inner-bottom-text {
+  width: 100%;
+  position: absolute;
+  bottom: 24px;
+  text-align: center;
+  color: #7a7b7c;
+}
+.support-browsers {
+  width: 100%;
+  position: absolute;
+  bottom: 60px;
+}
+.support-browsers img {
+  width: 65px;
+}

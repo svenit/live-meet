@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import ProgressBar from '@/components/ProgressBar';
+import ProgressBar from '@/components/loading/ProgressBar';
 import store from '@/store';
 import routes from './routes';
 

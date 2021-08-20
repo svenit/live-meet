@@ -1,5 +1,5 @@
 import { UserRepository } from '@/repository';
-import { UserResponse } from '@/types';
+import { User, UserResponse } from '@/types';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { LoginDTO, SingupDTO } from './auth.dto';
 
@@ -10,9 +10,9 @@ export class AuthService {
   async login(data: LoginDTO): Promise<UserResponse> {
     const { username, password } = data;
     const user = await this.userRepo.findByUserName(username);
-    if (!user || !user.matchPassword(password)) {
+    if (!user || !(await user.matchPassword(password))) {
       throw new HttpException(
-        'These credentials do not match our records.',
+        'Username or password is incorrect',
         HttpStatus.UNAUTHORIZED,
       );
     }
@@ -27,6 +27,15 @@ export class AuthService {
     }
     const user = this.userRepo.create(data);
     await this.userRepo.save(user);
+    return user.toResponse();
+  }
+
+  async getUser(data: Partial<User>): Promise<UserResponse> {
+    const { id } = data;
+    const user = await this.userRepo.findOne(id);
+    if (!user) {
+      throw new HttpException('UNAUTHORIZED', HttpStatus.UNAUTHORIZED);
+    }
     return user.toResponse();
   }
 }

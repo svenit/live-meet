@@ -1,3 +1,6 @@
+import auth from '@/middlewares/auth';
+import guest from '@/middlewares/guest';
+
 const page = (path) => () =>
   import(`@/pages/${path}`).then((m) => m.default || m);
 
@@ -11,13 +14,22 @@ export default [
     },
     children: [
       {
+        path: 'login',
+        name: 'app.login',
+        meta: {
+          middleware: [guest],
+          layout: 'Full',
+        },
+        component: page('login'),
+      },
+      {
         path: '',
         name: 'app.index',
         meta: {
-          middleware: [],
+          middleware: [auth],
           layout: 'Default',
         },
-        component: page('login'),
+        component: page('index'),
       },
       {
         path: '404',
