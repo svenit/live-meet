@@ -1,3 +1,4 @@
+import config from '@/config';
 import { SocketGuard } from '@/guards';
 import { Logger, UseGuards } from '@nestjs/common';
 import {
@@ -8,17 +9,10 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import * as jwt from 'jsonwebtoken';
+import { isJWT } from 'class-validator';
 
-@WebSocketGateway(3000, {
-  cors: {
-    origin: false,
-  },
-  cookie: {
-    httpOnly: true,
-    path: '/',
-  },
-  maxHttpBufferSize: 1e6,
-})
+@WebSocketGateway(config.app.socketPort, config.socket)
 export class AppGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
@@ -32,12 +26,22 @@ export class AppGateway
   }
 
   @UseGuards(SocketGuard)
-  handleConnection(client: Socket) {
-    this.logger.log('New client connected', client.id);
-    client.emit('connection', 'Successfully connected to server');
+  handleConnection(socket: Socket) {
+    try {
+      this.logger.log('New client connected', socket.id);
+      const { token } = socket.handshake.auth;
+      if (isJWT(token) && jwt.verify(token, config.app.appSecret)) {
+        return socket.emit('connection', 'Successfully connected to server');
+      }
+      this.logger.log('Failed to verify user');
+      socket.disconnect();
+    } catch (e) {
+      this.logger.log(e.message);
+      socket.disconnect();
+    }
   }
 
-  handleDisconnect(client: Socket) {
-    this.logger.log('Client disconnected', client.id);
+  handleDisconnect(socket: Socket) {
+    this.logger.log('Client disconnected', socket.id);
   }
 }

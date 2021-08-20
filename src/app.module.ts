@@ -34,6 +34,10 @@ export class AppModule implements NestModule {
           path: 'auth/signup',
           method: RequestMethod.POST,
         },
+        {
+          path: 'socket.io',
+          method: RequestMethod.ALL,
+        },
       )
       .forRoutes('*');
   }
