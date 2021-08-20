@@ -12,7 +12,7 @@ import { Server, Socket } from 'socket.io';
 import * as jwt from 'jsonwebtoken';
 import { isJWT } from 'class-validator';
 
-@WebSocketGateway(config.app.socketPort, config.socket)
+@WebSocketGateway(config.socket.port, config.socket.options)
 export class AppGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
