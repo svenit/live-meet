@@ -7,13 +7,23 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
 
-@WebSocketGateway()
+@WebSocketGateway(3000, {
+  cors: {
+    origin: false,
+  },
+  cookie: {
+    httpOnly: true,
+    path: '/',
+  },
+  maxHttpBufferSize: 1e6,
+})
 export class AppGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()
-  server: any;
+  server: Server;
 
   private readonly logger = new Logger(AppGateway.name);
 
@@ -22,12 +32,12 @@ export class AppGateway
   }
 
   @UseGuards(SocketGuard)
-  handleConnection(client: any) {
+  handleConnection(client: Socket) {
     this.logger.log('New client connected', client.id);
     client.emit('connection', 'Successfully connected to server');
   }
 
-  handleDisconnect(client: any) {
+  handleDisconnect(client: Socket) {
     this.logger.log('Client disconnected', client.id);
   }
 }

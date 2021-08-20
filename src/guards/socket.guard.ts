@@ -6,6 +6,7 @@ export class SocketGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
+    console.log(context);
     return true;
   }
 }

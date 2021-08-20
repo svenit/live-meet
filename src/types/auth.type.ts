@@ -6,7 +6,7 @@ export interface User {
 }
 
 export interface UserResponse {
-  id?: string;
+  id?: number;
   email?: string;
   username?: string;
   fullName?: string;

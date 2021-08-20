@@ -22,15 +22,15 @@ export class HttpErrorFilter implements ExceptionFilter {
         path: request.url,
         method: request.method,
         message: exception.message,
-        errors: {},
         requestId: new Date().getTime(),
+        success: false,
       };
 
       if (isObject(exceptionRes) && exception instanceof BadRequestException) {
-        errorResponse.errors = exceptionRes;
+        Object.assign(errorResponse, { errors: exceptionRes });
       }
 
-      response.status(404).json(errorResponse);
+      response.status(status).json(errorResponse);
     } catch (e) {
       return response.status(500).send('Internal Server Error');
     }

@@ -7,9 +7,12 @@ import { ValidationPipe } from './pipes';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const reflector = app.get(Reflector);
+
+  app.enableCors({ origin: false });
   app.use(logger);
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalGuards(new AuthGuard(reflector));
+
   await app.listen(3000);
 }
 

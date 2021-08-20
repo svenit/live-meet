@@ -4,7 +4,6 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
-  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 
@@ -13,27 +12,37 @@ import * as bcrypt from 'bcryptjs';
 import config from '@/config';
 
 @Entity('user')
-@Unique(['email', 'username'])
 export class UserEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
+  id: number;
 
-  @Column()
+  @Column({
+    unique: true,
+  })
   email: string;
 
-  @Column()
+  @Column({
+    unique: true,
+  })
   username: string;
 
-  @Column()
+  @Column({
+    name: 'full_name',
+    nullable: true,
+  })
   fullName: string;
 
   @Column('text')
   password: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    name: 'created_at',
+  })
   createdAt: any;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({
+    name: 'updated_at',
+  })
   updatedAt: any;
 
   @BeforeInsert()
