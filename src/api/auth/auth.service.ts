@@ -1,5 +1,6 @@
+import { UserEntity } from '@/entities';
 import { UserRepository } from '@/repository';
-import { User, UserResponse } from '@/types';
+import { UserResponse } from '@/types';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { LoginDTO, SingupDTO } from './auth.dto';
 
@@ -30,7 +31,7 @@ export class AuthService {
     return user.toResponse();
   }
 
-  async getUser(data: Partial<User>): Promise<UserResponse> {
+  async getUser(data: Partial<UserEntity>): Promise<UserResponse> {
     const { id } = data;
     const user = await this.userRepo.findOne(id);
     if (!user) {

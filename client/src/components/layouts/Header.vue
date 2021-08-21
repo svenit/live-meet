@@ -49,7 +49,7 @@ export default {
   border-color: #fff;
 }
 .main-page-nav >>> .ant-tabs-tab {
-  font-size: 15px;
+  font-size: 14px;
   color: #7a7b7c;
 }
 </style>

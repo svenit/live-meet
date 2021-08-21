@@ -1,44 +1,40 @@
-import {
-  Module,
-  NestModule,
-  MiddlewareConsumer,
-  RequestMethod,
-} from '@nestjs/common';
-import { UserModule } from '@/api/auth/auth.module';
+import { Module, Global } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { APP_FILTER } from '@nestjs/core';
-import { AuthMiddleware } from './middlewares';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { HttpErrorFilter } from './filters';
 import { AppGateway } from './gateways/app.gateway';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ProfileModule } from './api/profile/profile.module';
+import { AuthModule } from './api/auth/auth.module';
+import { UserRepository } from './repository';
+import { AuthGuard } from './guards';
+@Global()
 @Module({
-  imports: [UserModule, TypeOrmModule.forRoot()],
-  controllers: [],
+  imports: [
+    AuthModule,
+    ProfileModule,
+    /* Thirty modules */
+    TypeOrmModule.forRoot(),
+    TypeOrmModule.forFeature([UserRepository]),
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 60,
+    }),
+  ],
   providers: [
     {
       provide: APP_FILTER,
       useClass: HttpErrorFilter,
     },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
     AppGateway,
   ],
 })
-export class AppModule implements NestModule {
-  configure(consumner: MiddlewareConsumer) {
-    consumner
-      .apply(AuthMiddleware)
-      .exclude(
-        {
-          path: 'auth/login',
-          method: RequestMethod.POST,
-        },
-        {
-          path: 'auth/signup',
-          method: RequestMethod.POST,
-        },
-        {
-          path: 'socket.io',
-          method: RequestMethod.ALL,
-        },
-      )
-      .forRoutes('*');
-  }
-}
+export class AppModule {}

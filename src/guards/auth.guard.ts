@@ -1,4 +1,5 @@
 import config from '@/config';
+import { UserRepository } from '@/repository';
 import {
   CanActivate,
   ExecutionContext,
@@ -11,7 +12,10 @@ import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  public constructor(private readonly reflector: Reflector) {}
+  public constructor(
+    private readonly reflector: Reflector,
+    private readonly userRepo: UserRepository,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.get<boolean>(
@@ -24,7 +28,8 @@ export class AuthGuard implements CanActivate {
       return false;
     }
     request.user = await this.validateToken(request);
-    return true;
+    const { id } = request.user;
+    return !!(await this.userRepo.findOne(id));
   }
 
   async validateToken(request: Request | any) {

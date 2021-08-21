@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -10,8 +11,10 @@ import {
 import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
 import config from '@/config';
+import { RoomEntity } from './room.entity';
+import { UserRoomEntity } from './user-room.entity';
 
-@Entity('user')
+@Entity('users')
 export class UserEntity {
   @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
   id: number;
@@ -27,6 +30,11 @@ export class UserEntity {
   username: string;
 
   @Column({
+    nullable: true,
+  })
+  avatar: string;
+
+  @Column({
     name: 'full_name',
     nullable: true,
   })
@@ -38,12 +46,20 @@ export class UserEntity {
   @CreateDateColumn({
     name: 'created_at',
   })
-  createdAt: any;
+  createdAt: Date;
 
   @UpdateDateColumn({
     name: 'updated_at',
   })
-  updatedAt: any;
+  updatedAt: Date;
+
+  @OneToMany(() => RoomEntity, (room) => room.host, { onDelete: 'CASCADE' })
+  rooms: RoomEntity[];
+
+  @OneToMany(() => UserRoomEntity, (userRoom) => userRoom.user, {
+    onDelete: 'CASCADE',
+  })
+  userRooms: UserRoomEntity[];
 
   @BeforeInsert()
   async hashPassword() {
