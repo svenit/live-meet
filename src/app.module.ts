@@ -1,4 +1,4 @@
-import { Module, Global } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { HttpErrorFilter } from './filters';
@@ -8,12 +8,13 @@ import { ProfileModule } from './api/profile/profile.module';
 import { AuthModule } from './api/auth/auth.module';
 import { UserRepository } from './repository';
 import { AuthGuard } from './guards';
-@Global()
+import { RoomModule } from './api/room/room.module';
 @Module({
   imports: [
     AuthModule,
     ProfileModule,
-    /* Thirty modules */
+    RoomModule,
+    /* Third Party Modules */
     TypeOrmModule.forRoot(),
     TypeOrmModule.forFeature([UserRepository]),
     ThrottlerModule.forRoot({

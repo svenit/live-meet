@@ -1,4 +1,5 @@
 import { Public, User } from '@/decorator';
+import { User as UserType } from '@/types';
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { LoginDTO, SingupDTO } from './auth.dto';
 import { AuthService } from './auth.service';
@@ -20,7 +21,7 @@ export class AuthController {
   }
 
   @Get('me')
-  me(@User() user) {
+  me(@User() user: UserType) {
     return this.authService.getUser(user);
   }
 }

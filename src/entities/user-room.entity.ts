@@ -22,7 +22,7 @@ export class UserRoomEntity {
     primary: true,
     name: 'room_id',
   })
-  roomId: number;
+  roomId: string;
 
   @CreateDateColumn({
     name: 'created_at',

@@ -10,6 +10,13 @@ axios.interceptors.request.use(async (request) => {
   request.baseURL = apiUrl;
   const token = store.getters['auth/tokenUser'];
   if (token) request.headers.common['Authorization'] = `Bearer ${token}`;
+  if (request.data) {
+    Object.keys(request.data).forEach((key) => {
+      if (request.data[key] == '') {
+        delete request.data[key];
+      }
+    });
+  }
   return request;
 });
 

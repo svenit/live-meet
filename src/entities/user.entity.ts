@@ -57,6 +57,7 @@ export class UserEntity {
   rooms: RoomEntity[];
 
   @OneToMany(() => UserRoomEntity, (userRoom) => userRoom.user, {
+    cascade: ['insert', 'update'],
     onDelete: 'CASCADE',
   })
   userRooms: UserRoomEntity[];

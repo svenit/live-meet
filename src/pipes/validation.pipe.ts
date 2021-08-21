@@ -30,7 +30,9 @@ export class ValidationPipe implements PipeTransform<any> {
     const errorsMapping = {};
     errors.map((err) => {
       if (!errorsMapping[err.property]) errorsMapping[err.property] = [];
-      errorsMapping[err.property] = Object.values(err.constraints);
+      errorsMapping[err.property] = Object.values(err.constraints).map(
+        (error: any) => error.charAt(0).toUpperCase() + error.slice(1),
+      );
     });
     return errorsMapping;
   }

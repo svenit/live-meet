@@ -80,7 +80,7 @@ export default {
         username: [
           'username',
           {
-            rules: [{ required: true, message: 'Please input your name' }],
+            rules: [{ required: true, message: 'Please input your username' }],
           },
         ],
         password: [
@@ -116,10 +116,10 @@ export default {
             this.$router.push({ name: 'app.index' });
           }
         } catch (e) {
-          this.errorMessage = e.message;
           if (e.errors) {
-            utilities.showFormErrors(this.formSignupInstance, data.errors);
+            return utilities.showFormErrors(this.formSignupInstance, e.errors);
           }
+          this.errorMessage = e.message;
         }
       });
     },

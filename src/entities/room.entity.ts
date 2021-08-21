@@ -29,7 +29,7 @@ export class RoomEntity {
     nullable: true,
     name: 'host_id',
   })
-  hostId: number;
+  userId: number;
 
   @Column('text')
   password: string;
@@ -55,11 +55,17 @@ export class RoomEntity {
   host: UserEntity;
 
   @OneToMany(() => UserRoomEntity, (userRoom) => userRoom.room, {
+    cascade: ['insert', 'update'],
     onDelete: 'CASCADE',
   })
-  userRooms: UserEntity[];
+  userRooms: UserRoomEntity[];
 
   toResponse() {
-    return 1;
+    const { id, roomId, name } = this;
+    return {
+      id,
+      roomId,
+      name,
+    };
   }
 }
