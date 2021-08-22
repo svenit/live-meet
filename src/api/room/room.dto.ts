@@ -10,3 +10,8 @@ export class CreateRoomDTO {
   @Length(1, 30)
   password?: string;
 }
+
+export class GetRoomDTO {
+  roomId: string;
+  userId?: number;
+}

@@ -61,11 +61,12 @@ export class RoomEntity {
   userRooms: UserRoomEntity[];
 
   toResponse() {
-    const { id, roomId, name } = this;
+    const { id, roomId, name, createdAt } = this;
     return {
       id,
       roomId,
       name,
+      createdAt,
     };
   }
 }

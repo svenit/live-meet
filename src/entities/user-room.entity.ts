@@ -22,7 +22,13 @@ export class UserRoomEntity {
     primary: true,
     name: 'room_id',
   })
-  roomId: string;
+  roomId: number;
+
+  @Column({
+    name: 'is_banned',
+    default: false,
+  })
+  isBanned: boolean;
 
   @CreateDateColumn({
     name: 'created_at',

@@ -9,4 +9,13 @@ export default {
     }
     return result;
   },
+  pickByKey(key: string[], object: any) {
+    const newObject = {};
+    Object.keys(object).map((k: string) => {
+      if (key.includes(k)) {
+        newObject[k] = object[k];
+      }
+    });
+    return newObject;
+  },
 };

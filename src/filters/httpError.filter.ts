@@ -10,6 +10,7 @@ import { isObject } from 'class-validator';
 @Catch()
 export class HttpErrorFilter implements ExceptionFilter {
   catch(exception: HttpException | BadRequestException, host: ArgumentsHost) {
+    console.log(exception);
     const context = host.switchToHttp();
     const request = context.getRequest();
     const response = context.getResponse();

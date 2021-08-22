@@ -12,7 +12,7 @@ export class ProfileService {
 
   async getOwnedRooms(hostId: number): Promise<RoomResponse[]> {
     const rooms = await this.roomRepo.find({ where: { hostId } });
-    return rooms;
+    return rooms.map((room) => room.toResponse());
   }
 
   async getJoinedRoom(userId: number): Promise<any> {
