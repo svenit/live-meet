@@ -5,6 +5,7 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
+  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
@@ -31,7 +32,7 @@ export class AppGateway
       this.logger.log('New client connected', socket.id);
       const { token } = socket.handshake.auth;
       if (isJWT(token) && jwt.verify(token, config.app.appSecret)) {
-        return socket.emit('connection', 'Successfully connected to server');
+        return socket.emit('connection', socket.id);
       }
       this.logger.log('Failed to verify user');
       socket.disconnect();
@@ -43,5 +44,17 @@ export class AppGateway
 
   handleDisconnect(socket: Socket) {
     this.logger.log('Client disconnected', socket.id);
+  }
+
+  @SubscribeMessage('join-room')
+  handleJoinRoom(socket: Socket, data) {
+    const { roomId, userId } = data;
+    this.logger.log('Client join room', roomId);
+    socket.join(roomId);
+    socket.to(roomId).emit('user-connected', userId);
+    socket.on('disconnect', () => {
+      socket.to(roomId).emit('user-disconnected', userId);
+      this.logger.log('Client leave room', roomId);
+    });
   }
 }

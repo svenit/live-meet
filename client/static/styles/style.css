@@ -6,5 +6,14 @@
 }
 .anticon {
   position: relative;
-  top: -3px;
+  top: -3px !important;
+}
+.pointer:hover {
+  cursor: pointer;
+}
+.els {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
 }

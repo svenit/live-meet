@@ -1,5 +1,6 @@
 import io from 'socket.io-client';
 import config from '@/config';
+import store from '@/store/index';
 
 const Socket = {
   socketInstance: null,
@@ -7,12 +8,13 @@ const Socket = {
     if (this.socketInstance) {
       return this;
     }
+    const token = store.getters['auth/tokenUser'];
     this.socketInstance = io(config.socket.host, {
       extraHeaders: {
-        token: 1,
+        token,
       },
       auth: {
-        token: '1',
+        token,
       },
     });
     return this;
