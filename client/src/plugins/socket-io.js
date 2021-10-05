@@ -1,6 +1,6 @@
-import io from 'socket.io-client';
-import config from '@/config';
-import store from '@/store/index';
+import io from "socket.io-client";
+import config from "@/config";
+import store from "@/store/index";
 
 const Socket = {
   socketInstance: null,
@@ -8,7 +8,7 @@ const Socket = {
     if (this.socketInstance) {
       return this;
     }
-    const token = store.getters['auth/tokenUser'];
+    const token = store.getters["auth/tokenUser"];
     this.socketInstance = io(config.socket.host, {
       extraHeaders: {
         token,
@@ -23,13 +23,13 @@ const Socket = {
     return this.socketInstance;
   },
   onConnected(callback) {
-    this.on('connection', callback);
+    this.on("connection", callback);
   },
   onDisconnected(callback) {
-    this.on('disconnect', callback);
+    this.on("disconnect", callback);
   },
   reconnect() {
-    console.info('Reconnect socket...');
+    console.info("Reconnect socket...");
     this.socketInstance.connect();
   },
   on(channel, callback) {
@@ -39,8 +39,8 @@ const Socket = {
     this.socketInstance.emit(channel, data);
   },
   terminate() {
-    console.log('Terminated socket');
-    this.emit('terminate');
+    console.log("Terminated socket");
+    this.emit("terminate");
   },
 };
 

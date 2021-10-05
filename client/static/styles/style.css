@@ -17,3 +17,25 @@
   white-space: nowrap;
   display: block;
 }
+
+.video-item {
+  margin: 5px;
+  flex: 0 0 23%;
+}
+
+#video-grid video {
+  background: #000;
+  height: 200px;
+  width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+  -webkit-transform: scaleX(1);
+  transform: scaleX(1);
+  margin: 0px 10px;
+}
+.main-video {
+  height: calc(100vh - 150px);
+  background: #000;
+  border-radius: 8px;
+  object-fit: contain;
+}

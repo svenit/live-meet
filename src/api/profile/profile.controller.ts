@@ -10,4 +10,9 @@ export class ProfileController {
   getOwnedRooms(@User('id') userId: number) {
     return this.profileService.getOwnedRooms(userId);
   }
+
+  @Get('joined-rooms')
+  getJoinedRooms(@User('id') userId: number) {
+    return this.profileService.getJoinedRoom(userId);
+  }
 }

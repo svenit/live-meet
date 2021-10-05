@@ -86,3 +86,6 @@
 .support-browsers img {
   width: 65px;
 }
+.login-form >>> .ant-alert-icon {
+  top: 11.5px !important;
+}

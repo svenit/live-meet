@@ -12,13 +12,16 @@ import {
 import { Server, Socket } from 'socket.io';
 import * as jwt from 'jsonwebtoken';
 import { isJWT } from 'class-validator';
-
+import roomStorage from '@/storage/room';
+import { UserRepository } from '@/repository';
 @WebSocketGateway(config.socket.port, config.socket.options)
 export class AppGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()
   server: Server;
+
+  constructor(private readonly userRepo: UserRepository) {}
 
   private readonly logger = new Logger(AppGateway.name);
 
@@ -29,12 +32,10 @@ export class AppGateway
   @UseGuards(SocketGuard)
   handleConnection(socket: Socket) {
     try {
-      this.logger.log('New client connected', socket.id);
       const { token } = socket.handshake.auth;
       if (isJWT(token) && jwt.verify(token, config.app.appSecret)) {
         return socket.emit('connection', socket.id);
       }
-      this.logger.log('Failed to verify user');
       socket.disconnect();
     } catch (e) {
       this.logger.log(e.message);
@@ -47,14 +48,36 @@ export class AppGateway
   }
 
   @SubscribeMessage('join-room')
-  handleJoinRoom(socket: Socket, data) {
-    const { roomId, userId } = data;
-    this.logger.log('Client join room', roomId);
-    socket.join(roomId);
+  async handleJoinRoom(socket: Socket, data) {
+    const { roomId, userId, tokenUser, userConfig } = data;
+    const userPayload: any = jwt.verify(tokenUser, config.app.appSecret);
+    if (!userPayload.id) {
+      return socket.disconnect();
+    }
+    const user = await this.userRepo.findOne(userPayload.id);
+    if (!user) {
+      return socket.disconnect();
+    }
+    const { id, fullName } = user.toResponse();
+    /** Disconnect current session if exists */
+    const currentSessionId = roomStorage.userSession(id);
+    if (currentSessionId) {
+      if (this.server.sockets.sockets.get(currentSessionId)) {
+        this.server.sockets.sockets.get(currentSessionId).disconnect();
+      }
+    }
+    /** Add user to room storage */
+    roomStorage.addUserToRoom(roomId, {
+      socketId: socket.id,
+      id,
+      fullName,
+      config: userConfig,
+      time: new Date().getTime(),
+    });
+    socket.join([roomId, id]);
     socket.to(roomId).emit('user-connected', userId);
     socket.on('disconnect', () => {
       socket.to(roomId).emit('user-disconnected', userId);
-      this.logger.log('Client leave room', roomId);
     });
   }
 }

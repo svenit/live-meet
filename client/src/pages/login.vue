@@ -71,37 +71,37 @@
 </template>
 
 <script>
-import utilities from '@/utils/utilities';
-import { mapState } from 'vuex';
+import utilities from "@/utils/utilities";
+import { mapState } from "vuex";
 export default {
   data() {
     return {
       formRule: {
         username: [
-          'username',
+          "username",
           {
-            rules: [{ required: true, message: 'Please input your username' }],
+            rules: [{ required: true, message: "Please input your username" }],
           },
         ],
         password: [
-          'password',
+          "password",
           {
             rules: [
               {
                 required: true,
-                message: 'Please input your password',
+                message: "Please input your password",
               },
             ],
           },
         ],
       },
-      form: this.$form.createForm(this, { name: 'login' }),
+      form: this.$form.createForm(this, { name: "login" }),
       errorMessage: null,
     };
   },
   computed: {
-    ...mapState('auth', {
-      isLogined: (state) => state.isLogined,
+    ...mapState("auth", {
+      isLogined: state => state.isLogined,
     }),
   },
   methods: {
@@ -111,9 +111,9 @@ export default {
       this.form.validateFields(async (err, values) => {
         if (err) return;
         try {
-          await this.$store.dispatch('auth/login', values);
+          await this.$store.dispatch("auth/login", values);
           if (this.isLogined) {
-            this.$router.push({ name: 'app.index' });
+            this.$router.push({ name: "app.index" });
           }
         } catch (e) {
           if (e.errors) {
@@ -127,5 +127,5 @@ export default {
 };
 </script>
 <style scoped>
-@import '../assets/styles/login.css';
+@import "../assets/styles/login.css";
 </style>

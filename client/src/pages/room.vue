@@ -11,8 +11,8 @@
       </div>
       <div class="container">
         <div class="screen-setup row">
-          <div class="col-lg-7 col-md-6 col-sm-12 position-relative">
-            <video autoplay id="my-video"></video>
+          <div class="col-lg-7 col-md-6 col-sm-12 position-relative p-0">
+            <video style="height: 400px" autoplay id="my-video"></video>
             <p
               class="video-cam-status text-white text-center position-absolute"
             >
@@ -56,7 +56,7 @@
               </a-button>
             </div>
           </div>
-          <div class="col-lg-5 col-md-6 col-sm-12 text-center">
+          <div class="col-lg-5 col-md-6 col-sm-12 text-center p-0">
             <div v-if="room">
               <h4 style="font-size: 28px" class="els">
                 {{ room.name }}
@@ -67,7 +67,8 @@
                 alt=""
               />
               <p>
-                Room ID: <span class="font-weight-bold">{{ room.roomId }}</span>
+                Room ID:
+                <span class="font-weight-bold">{{ room.roomId }}</span>
               </p>
               <div class="action-button mt-4">
                 <a-button
@@ -84,68 +85,85 @@
         </div>
       </div>
     </template>
-    <template v-else>
-      <div class="position-relative" id="video-grid">
-        <video style="border: 5px solid red" autoplay id="my-video"></video>
-        <p class="video-cam-status text-white text-center position-absolute">
-          <span v-if="isLoadingVideo"> Camera is preparing... </span>
-          <span v-else-if="!videoStatus && !isSharingScreen">
-            Camera is turn off
-          </span>
-        </p>
+    <div class="video-grid-view position-relative" v-else>
+      <div class="video-grid-container row w-100 h-100 m-0 p-5">
         <div
-          v-show="audioStatus"
-          id="my-tune"
-          class="audio-tune position-absolute"
+          :class="[
+            !hasOtherUsers ? 'col-12' : 'col-8',
+            { 'd-none': !isHasUserShareScreen && hasOtherUsers },
+          ]"
+          id="main-screen"
+          class="position-relative p-1"
         >
-          <div id="tune-1" class="tune"></div>
-          <div id="tune-2" class="tune"></div>
-          <div id="tune-3" class="tune"></div>
+          <video
+            class="w-100 main-video"
+            :class="{ 'presentation-mode': isSharingScreen }"
+            id="my-main-video"
+          ></video>
         </div>
-        <div class="group-button group-button-in-call position-absolute">
-          <a-button
-            class="mx-1"
-            :type="audioStatus ? 'default' : 'danger'"
-            shape="circle"
-            @click="toggleMicroStreaming"
-          >
-            <ion-icon
-              class="video-setup-icon"
-              :name="audioStatus ? 'mic' : 'mic-off'"
-            ></ion-icon>
-          </a-button>
-          <a-button
-            class="mx-1"
-            :type="videoStatus ? 'default' : 'danger'"
-            shape="circle"
-            @click="toggleVideoStreaming"
-            :disabled="isLoadingVideo"
-          >
-            <ion-icon
-              class="video-setup-icon"
-              :name="videoStatus ? 'videocam' : 'videocam-off'"
-            ></ion-icon>
-          </a-button>
-          <a-button
-            class="mx-1"
-            :type="isSharingScreen ? 'primary' : 'default'"
-            shape="circle"
-            @click="toggleScreenStreaming"
-          >
-            <ion-icon class="video-setup-icon" name="push"></ion-icon>
-          </a-button>
-          <a-button
-            class="mx-1 w-auto"
-            type="danger"
-            shape="round"
-            @click="toggleVideoStreaming"
-            :disabled="isLoadingVideo"
-          >
-            <ion-icon class="video-setup-icon" name="power"></ion-icon>
-          </a-button>
+        <div
+          v-show="hasOtherUsers"
+          :class="!isHasUserShareScreen && hasOtherUsers ? 'col-12' : 'col-4'"
+          class="video-box p-1"
+          id="video-grid"
+        >
+          <div id="my-video-grid" class="video-item position-relative">
+            <video
+              :class="{ 'presentation-mode': isSharingScreen }"
+              autoplay
+              id="my-video"
+            ></video>
+            <div v-show="audioStatus" id="my-tune" class="audio-tune">
+              <div id="tune-1" class="tune"></div>
+              <div id="tune-2" class="tune"></div>
+              <div id="tune-3" class="tune"></div>
+            </div>
+          </div>
         </div>
       </div>
-    </template>
+      <div class="group-button group-button-in-call position-absolute">
+        <a-button
+          class="mx-1"
+          :type="audioStatus ? 'default' : 'danger'"
+          shape="circle"
+          @click="toggleMicroStreaming"
+        >
+          <ion-icon
+            class="video-setup-icon"
+            :name="audioStatus ? 'mic' : 'mic-off'"
+          ></ion-icon>
+        </a-button>
+        <a-button
+          class="mx-1"
+          :type="videoStatus ? 'default' : 'danger'"
+          shape="circle"
+          @click="toggleVideoStreaming"
+          :disabled="isLoadingVideo"
+        >
+          <ion-icon
+            class="video-setup-icon"
+            :name="videoStatus ? 'videocam' : 'videocam-off'"
+          ></ion-icon>
+        </a-button>
+        <a-button
+          class="mx-1"
+          :type="isSharingScreen ? 'primary' : 'default'"
+          shape="circle"
+          @click="toggleScreenStreaming"
+        >
+          <ion-icon class="video-setup-icon" name="push"></ion-icon>
+        </a-button>
+        <a-button
+          class="mx-1 w-auto"
+          type="danger"
+          shape="round"
+          @click="toggleVideoStreaming"
+          :disabled="isLoadingVideo"
+        >
+          <ion-icon class="video-setup-icon" name="power"></ion-icon>
+        </a-button>
+      </div>
+    </div>
     <div v-if="showBlockedModal" class="blocked-modal">
       <div class="close-modal pointer">
         <ion-icon
@@ -162,7 +180,7 @@
             <span v-if="isAudioBlocked">Microphone</span>
             <span v-if="blockedAll"> and </span>
             <span v-if="isVideoCamBlocked">Camera</span>
-            <span>{{ blockedAll ? 'are' : 'is' }} blocked</span>
+            <span>{{ blockedAll ? "are" : "is" }} blocked</span>
           </h4>
           <p class="text-center">
             Live Meet needs access to your camera or microphone. To us Live Meet
@@ -178,9 +196,9 @@
   </div>
 </template>
 <script>
-import api from '@/api';
-import socket from '@/plugins/socket-io';
-import { send } from 'process';
+import { mapState } from "vuex";
+import api from "@/api";
+import socket from "@/plugins/socket-io";
 export default {
   data() {
     return {
@@ -203,15 +221,22 @@ export default {
       peer: null,
       peers: {},
       peerId: null,
-      currentPeer: null,
+      connectedPeers: [],
       peersList: [],
       isSharingScreen: false,
+      isHasUserShareScreen: false,
     };
   },
   computed: {
     blockedAll() {
       return this.isAudioBlocked && this.isVideoCamBlocked;
     },
+    hasOtherUsers() {
+      return this.peersList.length > 0;
+    },
+    ...mapState("auth", {
+      tokenUser: state => state.tokenUser,
+    }),
   },
   async created() {
     this.$root.$loading.start();
@@ -226,18 +251,18 @@ export default {
         this.room = data;
       } catch (e) {
         this.$message.error(e.message);
-        this.$router.push({ name: 'app.index' });
+        this.$router.push({ name: "app.index" });
       }
     },
     async requestAudioAndVideo() {
       this.isAudioBlocked = false;
       this.isVideoCamBlocked = false;
-      await this.checkRequestPermission('isAudioBlocked', 'microphone');
-      await this.checkRequestPermission('isVideoCamBlocked', 'camera');
+      await this.checkRequestPermission("isAudioBlocked", "microphone");
+      await this.checkRequestPermission("isVideoCamBlocked", "camera");
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: true,
-          video: true,
+          video: { width: { ideal: 1920 }, height: { ideal: 1080 } },
         });
         this.stream = stream;
       } catch (e) {
@@ -247,7 +272,7 @@ export default {
     async requestAudio() {
       this.isAudioBlocked = false;
       if (!this.audioStatus) {
-        await this.checkRequestPermission('isAudioBlocked', 'microphone');
+        await this.checkRequestPermission("isAudioBlocked", "microphone");
         try {
           const stream = await navigator.mediaDevices.getUserMedia({
             audio: {
@@ -257,66 +282,92 @@ export default {
           });
           this.audioStream = stream;
           this.audioStatus = true;
-          this.$message.success('Microphone is turn on');
-          if (document.getElementById('preview-tune')) {
-            this.analyserTune(stream, 'preview-tune');
+          this.$message.success("Microphone is turn on");
+          if (document.getElementById("preview-tune")) {
+            this.analyserTune(stream, "preview-tune");
           }
         } catch (err) {
           console.log(err);
           if (!this.isAudioBlocked) {
             this.$warning({
-              title: 'Please accept access microphone permission',
+              title: "Please accept access microphone permission",
               content:
                 "Click the camera blocked icon in your browser's address bar",
             });
           }
         }
       } else {
-        this.audioStatus = false;
-        this.audioStream.getTracks()[0].stop();
-        this.voiceTune = 0;
-        this.$message.success('Microphone is turn off');
-        if (this.audioContext) {
-          this.audioContext.close();
-        }
+        this.$message.success("Microphone is turn off");
+        this.stopAudio();
+      }
+    },
+    stopAudio() {
+      this.audioStatus = false;
+      this.audioStream.getTracks()[0].stop();
+      this.voiceTune = 0;
+      if (this.audioContext) {
+        this.audioContext.close();
+      }
+      if (this.stream) {
+        this.stream.getAudioTracks()[0].stop();
       }
     },
     async requestVideo() {
       this.isVideoCamBlocked = false;
-      const video = document.getElementById('my-video');
+      const video = document.getElementById("my-video");
+      const mainVideo = document.getElementById("my-main-video");
       if (!this.videoStatus) {
         this.isLoadingVideo = true;
-        await this.checkRequestPermission('isVideoCamBlocked', 'camera');
+        await this.checkRequestPermission("isVideoCamBlocked", "camera");
         try {
           const stream = await navigator.mediaDevices.getUserMedia({
-            video: true,
+            video: {
+              width: { ideal: 1920 },
+              height: { ideal: 1080 },
+              facingMode: "environment",
+            },
             audio: false,
           });
           if (video) {
             this.videoStream = stream;
             if (!this.isSharingScreen) {
               video.srcObject = stream;
+              if (mainVideo) {
+                mainVideo.srcObject = stream;
+              }
             }
             this.videoStatus = true;
             this.isLoadingVideo = false;
-            this.$message.success('Camera is turn on');
+            this.$message.success("Camera is turn on");
           }
         } catch (err) {
           this.isLoadingVideo = false;
           if (!this.isVideoCamBlocked) {
             this.$warning({
-              title: 'Please accept access camera permission',
+              title: "Please accept access camera permission",
               content:
-                'Click into blocked camera icon in address bar of browser and allow access',
+                "Click into blocked camera icon in address bar of browser and allow access",
             });
           }
         }
       } else {
-        this.$message.success('Camera is turn off');
-        this.videoStatus = false;
-        video.pause();
-        video.src = '';
-        this.videoStream.getTracks()[0].stop();
+        this.$message.success("Camera is turn off");
+        this.stopVideo();
+      }
+    },
+    stopVideo() {
+      const video = document.getElementById("my-video");
+      const mainVideo = document.getElementById("my-main-video");
+      this.videoStatus = false;
+      video.pause();
+      video.src = "";
+      if (mainVideo) {
+        mainVideo.pause();
+        mainVideo.src = "";
+      }
+      this.videoStream.getTracks()[0].stop();
+      if (this.stream) {
+        this.stream.getVideoTracks()[0].stop();
       }
     },
     async checkRequestPermission(type, permission) {
@@ -324,7 +375,7 @@ export default {
       await navigator.permissions
         .query({ name: permission })
         .then(function (permissionStatus) {
-          if (permissionStatus.state == 'denied') {
+          if (permissionStatus.state == "denied") {
             self[type] = true;
             self.showBlockedModal = true;
           }
@@ -355,114 +406,169 @@ export default {
     connectToServer() {
       this.isInRoom = true;
       socket.createConnection();
-      socket.onConnected(async (socketId) => {
+      socket.onConnected(async socketId => {
         await this.getStream();
 
-        const peer = new Peer(undefined, {
-          host: '/',
-          port: 3003,
+        const peer = new Peer({
+          config: {
+            iceServers: [{ url: "stun:stun.l.google.com:19302" }],
+          },
         });
         this.peer = peer;
 
-        peer.on('open', (id) => {
-          socket.emit('join-room', {
+        peer.on("open", id => {
+          socket.emit("join-room", {
             roomId: this.room.roomId,
             userId: id,
+            tokenUser: this.tokenUser,
+            userConfig: {
+              video: this.videoStatus,
+              audio: this.audioStatus,
+              isSharingScreen: this.isSharingScreen,
+            },
           });
           this.peerId = id;
           if (this.stream) {
             if (this.audioStatus) {
-              this.analyserTune(this.stream, 'my-tune');
+              this.analyserTune(this.stream, "my-tune");
             }
             this.addMyVideo(this.stream);
           }
         });
 
-        peer.on('call', async (call) => {
+        peer.on("disconnected", () => {
+          peer.reconnect();
+        });
+
+        peer.on("call", async call => {
           call.answer(this.stream || this.createMediaStreamFake());
-          call.on('stream', (remoteStream) => {
+          call.on("stream", remoteStream => {
             if (!this.peersList.includes(call.peer)) {
-              this.addVideoToStream(remoteStream);
-              this.currentPeer = call.peerConnection;
+              this.addVideoToStream(remoteStream, call.peer);
+              this.connectedPeers.push(call.peerConnection);
               this.peersList.push(call.peer);
             }
           });
         });
 
-        socket.on('user-connected', async (userId) => {
+        socket.on("user-connected", async userId => {
+          this.$message.info(`${userId} joined the room`);
           await this.getStream();
           this.connectToNewUser(userId, this.stream);
         });
 
-        socket.on('user-disconnected', (userId) => {
-          if (this.peers[userId]) {
-            this.peers[userId].close();
+        socket.on("user-disconnected", userId => {
+          const peerIndex = this.peersList.findIndex(peer => peer == userId);
+          if (peerIndex != -1) {
+            this.peersList.splice(peerIndex, 1);
           }
+          if (this.peers[userId]) this.peers[userId].close();
+          const mainVideo = document.getElementById(`main-video-${userId}`);
+          if (mainVideo) {
+            mainVideo.remove();
+          }
+          const videoContainer = document.getElementById(
+            `video-container-${userId}`,
+          );
+          if (videoContainer) {
+            videoContainer.remove();
+          }
+          if (!this.hasOtherUsers) {
+            const myMainVideo = document.getElementById("my-main-video");
+            myMainVideo.style.display = "block";
+          }
+          this.$message.info(`${userId} left the room`);
         });
       });
       socket.onDisconnected(() => {
         this.$error({
-          title: 'Something went wrong',
-          content: 'Can not connect to server, please try again',
+          title: "Something went wrong",
+          content:
+            "You have entered the room at another device or could not connect to the server",
         });
-        this.$router.push({ name: 'app.index' });
+        this.stopVideo();
+        this.stopAudio();
+        this.$router.push({ name: "app.index" });
       });
     },
-    addVideoToStream(stream) {
-      const video = document.createElement('video');
+    addVideoToStream(stream, peerId) {
+      const video = document.createElement("video");
       video.srcObject = stream;
       video.play();
       video.muted = true;
+      video.classList.add("remote-video");
+      video.setAttribute("id", `video-${peerId}`);
       const audio = new Audio();
       audio.srcObject = stream;
       audio.play();
-      const videoGrid = document.getElementById('video-grid');
-      videoGrid.append(video);
+      const videoGrid = document.getElementById("video-grid");
+      const videoWrapper = document.createElement("div");
+      videoWrapper.setAttribute("id", `video-container-${peerId}`);
+      videoWrapper.classList.add("video-item", "position-relative");
+      videoWrapper.append(video);
+      videoGrid.append(videoWrapper);
+
+      const oldMainVideos = document.getElementsByClassName("main-video");
+
+      for (let i = 0; i < oldMainVideos.length; ++i) {
+        const oldMainVideo = oldMainVideos[i];
+        oldMainVideo.style.display = "none";
+      }
+
+      const mainScreen = document.getElementById("main-screen");
+      const mainRemoteVideo = document.createElement("video");
+      mainRemoteVideo.classList.add("w-100", "main-video");
+      mainRemoteVideo.setAttribute("id", `main-video-${peerId}`);
+      mainRemoteVideo.srcObject = stream;
+      mainRemoteVideo.play();
+      mainRemoteVideo.muted = true;
+      mainScreen.append(mainRemoteVideo);
     },
     connectToNewUser(userId, stream) {
       stream = stream || this.createMediaStreamFake();
       if (stream) {
         const call = this.peer.call(userId, stream);
-        return call.on('stream', (remoteStream) => {
+        call.on("stream", remoteStream => {
           if (!this.peersList.includes(call.peer)) {
-            this.addVideoToStream(remoteStream);
+            this.addVideoToStream(remoteStream, call.peer);
+            this.connectedPeers.push(call.peerConnection);
             this.peersList.push(call.peer);
-            this.currentPeer = call.peerConnection;
           }
         });
+        this.peers[userId] = call;
+        return;
       }
       this.addVideoToStream(null);
     },
     addMyVideo(stream) {
-      const video = document.getElementById('my-video');
+      const video = document.getElementById("my-video");
+      const mainVideo = document.getElementById("my-main-video");
       video.srcObject = stream;
       video.muted = true;
-      const videoGrid = document.getElementById('video-grid');
-      video.addEventListener('loadedmetadata', () => {
+      mainVideo.srcObject = stream;
+      mainVideo.muted = true;
+      video.addEventListener("loadedmetadata", () => {
         video.play();
       });
-      if (this.isSharingScreen) {
-        video.classList.add('presentation-mode');
-      } else {
-        video.classList.remove('presentation-mode');
-      }
-      videoGrid.append(video);
+      mainVideo.addEventListener("loadedmetadata", () => {
+        mainVideo.play();
+      });
     },
     async toggleMicroStreaming() {
-      const type = 'audioStatus';
-      const track = 'audioStream';
-      const trackType = 'audio';
-      const requestType = 'requestAudio';
+      const type = "audioStatus";
+      const track = "audioStream";
+      const trackType = "audio";
+      const requestType = "requestAudio";
       await this.toggleResourceStreaming(type, track, trackType, requestType);
       if (this.audioStatus) {
-        this.analyserTune(this.audioStream, 'my-tune');
+        this.analyserTune(this.audioStream, "my-tune");
       }
     },
     async toggleVideoStreaming() {
-      const type = 'videoStatus';
-      const track = 'videoStream';
-      const trackType = 'video';
-      const requestType = 'requestVideo';
+      const type = "videoStatus";
+      const track = "videoStream";
+      const trackType = "video";
+      const requestType = "requestVideo";
       if (this.isSharingScreen) {
         return await this.requestVideo();
       }
@@ -472,7 +578,9 @@ export default {
       try {
         const stream = await navigator.mediaDevices.getDisplayMedia({
           video: {
-            cursor: 'always',
+            cursor: "always",
+            width: { ideal: 4096 },
+            height: { ideal: 2160 },
           },
           audio: {
             echoCancellation: true,
@@ -484,11 +592,13 @@ export default {
         this.isSharingScreen = true;
         this.addMyVideo(stream);
         this.screenStream = stream;
-        if (this.currentPeer) {
-          const sender = this.currentPeer
-            .getSenders()
-            .find((s) => s.track.kind == screenTrack.kind);
-          sender.replaceTrack(screenTrack);
+        if (this.connectedPeers) {
+          this.connectedPeers.forEach(p => {
+            const sender = p
+              .getSenders()
+              .find(s => s.track.kind == screenTrack.kind);
+            sender.replaceTrack(screenTrack);
+          });
         }
       } catch (e) {
         this.stopScreenShare();
@@ -498,43 +608,51 @@ export default {
     stopScreenShare() {
       this.isSharingScreen = false;
       this.addMyVideo(this.videoStream);
-      if (this.currentPeer) {
-        const sender = this.currentPeer
-          .getSenders()
-          .find((s) => s.track.kind == 'video');
-        if (this.videoStatus) {
-          return sender.replaceTrack(this.videoStream.getVideoTracks()[0]);
-        }
-        sender.replaceTrack(
-          this.createEmptyVideoTrack({ width: 620, height: 400 }),
-        );
+      if (this.connectedPeers) {
+        this.connectedPeers.forEach(p => {
+          const sender = p.getSenders().find(s => s.track.kind == "video");
+          if (this.videoStatus) {
+            return sender.replaceTrack(this.videoStream.getVideoTracks()[0]);
+          }
+          sender.replaceTrack(
+            this.createEmptyVideoTrack({ width: 620, height: 400 }),
+          );
+        });
       }
     },
     async toggleResourceStreaming(type, track, trackType, requestType) {
-      if (this[type] && this.currentPeer) {
-        const sender = this.currentPeer
-          .getSenders()
-          .find((s) => s.track.kind == trackType);
-        sender.track.stop();
-        this[type] = false;
+      if (this[type] && this.connectedPeers) {
+        this.connectedPeers.forEach(p => {
+          const sender = p.getSenders().find(s => s.track.kind == trackType);
+          sender.track.stop();
+        });
+        this[requestType]();
       } else {
-        let sender = null;
-        if (this.currentPeer) {
-          sender = this.currentPeer
-            .getSenders()
-            .find((s) => s.track.kind == trackType);
+        if (this.connectedPeers) {
+          await this[requestType]();
+          for (let i = 0; i < this.connectedPeers.length; ++i) {
+            const sender = this.connectedPeers[i]
+              .getSenders()
+              .find(s => s.track.kind == trackType);
+            if (sender && this[track]) {
+              const getTrack =
+                trackType == "audio"
+                  ? this[track].getAudioTracks()
+                  : this[track].getVideoTracks();
+              sender.replaceTrack(getTrack[0]);
+            }
+          }
+          return;
         }
-        await this[requestType]();
-        if (sender && this[track]) {
-          const getTrack =
-            trackType == 'audio'
-              ? this[track].getAudioTracks()
-              : this[track].getVideoTracks();
-          return sender.replaceTrack(getTrack[0]);
-        }
-        socket.emit('join-room', {
+        socket.emit("join-room", {
           roomId: this.room.roomId,
           userId: this.peerId,
+          tokenUser: this.tokenUser,
+          userConfig: {
+            video: this.videoStatus,
+            audio: this.audioStatus,
+            isSharingScreen: this.isSharingScreen,
+          },
         });
       }
     },
@@ -579,13 +697,13 @@ export default {
               ? minTuneHeight
               : average / lowContour > maxTuneHeight
               ? maxTuneHeight - 10
-              : average / lowContour + 'px';
+              : average / lowContour + "px";
           const highTune =
             average / highCountour <= minTuneHeight
               ? minTuneHeight
               : average / highCountour > maxTuneHeight
               ? maxTuneHeight
-              : average / highCountour + 'px';
+              : average / highCountour + "px";
           tune1.style.height = lowTune;
           tune2.style.height = highTune;
           tune3.style.height = lowTune;
@@ -610,11 +728,11 @@ export default {
     },
 
     createEmptyVideoTrack({ width, height }) {
-      const canvas = Object.assign(document.createElement('canvas'), {
+      const canvas = Object.assign(document.createElement("canvas"), {
         width,
         height,
       });
-      canvas.getContext('2d').fillRect(0, 0, width, height);
+      canvas.getContext("2d").fillRect(0, 0, width, height);
 
       const stream = canvas.captureStream();
       const track = stream.getVideoTracks()[0];
@@ -625,5 +743,5 @@ export default {
 };
 </script>
 <style scoped>
-@import '../assets/styles/room.css';
+@import "../assets/styles/room.css";
 </style>
