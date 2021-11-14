@@ -1,5 +1,5 @@
-import auth from './auth';
-import room from './room';
+import auth from "./auth";
+import room from "./room";
 
 export default {
   auth,

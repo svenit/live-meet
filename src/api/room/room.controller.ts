@@ -13,6 +13,16 @@ export class RoomController {
     return this.roomService.createRoom(userId, data);
   }
 
+  @Get('owner')
+  getOwnerRoom(@User('id') userId: number) {
+    return this.roomService.getOwnerRoom(userId);
+  }
+
+  @Get('guest')
+  getRoomGuest(@User('id') userId: number) {
+    return this.roomService.getGuestRoom(userId);
+  }
+
   @Get(':id')
   getRoom(@User('id') userId: number, @Param('id') roomId: string) {
     return this.roomService.getRoom({ userId, roomId });
@@ -41,5 +51,19 @@ export class RoomController {
         users,
       };
     }
+  }
+
+  @Post(':id/validate-password')
+  validatePassword(
+    @User('id') userId: number,
+    @Param('id') roomId: string,
+    @Body('password') password: string,
+  ) {
+    return this.roomService.validatePassword({ userId, roomId, password });
+  }
+
+  @Post(':id/join')
+  joinRoom(@Param('id') roomId: string) {
+    return this.roomService.joinRoom(roomId);
   }
 }

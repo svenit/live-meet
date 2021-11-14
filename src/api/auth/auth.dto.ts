@@ -26,12 +26,6 @@ export class SingupDTO {
   })
   username: string;
 
-  @IsEmail()
-  @NotExistIn('users', {
-    message: 'Email is already used',
-  })
-  email: string;
-
   @IsNotEmpty()
   @Length(2, 80)
   fullName: string;

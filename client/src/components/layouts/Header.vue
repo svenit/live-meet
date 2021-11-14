@@ -16,7 +16,13 @@
             </span>
           </a-tab-pane>
         </a-tabs>
-        <a-avatar class="ml-3">{{ user.fullName ? user.fullName[0] : 'U' }}</a-avatar>
+        <a-dropdown :trigger="['click']">
+          <a-menu slot="overlay">
+            <a-menu-item key="1"> {{ user.fullName }} </a-menu-item>
+            <a-menu-item @click="logout" key="2"> <a-icon type="logout" /> Logout </a-menu-item>
+          </a-menu>
+          <a-avatar class="ml-3">{{ user.fullName ? user.fullName[0] : 'U' }}</a-avatar>
+        </a-dropdown>
       </div>
     </div>
   </div>
@@ -34,6 +40,12 @@ export default {
       user: (state) => state.user,
     }),
   },
+  methods: {
+    logout() {
+      this.$store.dispatch('auth/logout');
+      this.$router.push({name: 'app.login'})
+    }
+  }
 };
 </script>
 <style scoped>

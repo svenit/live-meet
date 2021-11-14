@@ -55,4 +55,55 @@ export class RoomService {
       isJoined,
     };
   }
+
+  async validatePassword({ userId, roomId, password }) {
+    const room = await this.roomRepo.findOne({
+      where: { roomId },
+    });
+    if (!room) {
+      throw new HttpException('Can not found this room', HttpStatus.NOT_FOUND);
+    }
+    if (room.password == password) {
+      const userRoom = this.userRoomRepo.create({
+        userId,
+        roomId: room.id,
+      });
+      await this.userRoomRepo.save(userRoom);
+      return {
+        success: true,
+      };
+    }
+  }
+
+  async joinRoom(roomId: string) {
+    const room = await this.roomRepo.findOne({
+      where: { roomId },
+    });
+    return {
+      success: !!room,
+    };
+  }
+
+  async getOwnerRoom(userId) {
+    const rooms = await this.roomRepo.find({
+      take: 5,
+      where: { userId },
+    });
+    return {
+      success: true,
+      rooms: rooms.reverse().map((room) => room.toResponse()),
+    };
+  }
+
+  async getGuestRoom(userId) {
+    const rooms = await this.userRoomRepo.find({
+      take: 5,
+      where: { userId },
+      relations: ['user', 'room'],
+    });
+    return {
+      success: true,
+      rooms,
+    };
+  }
 }

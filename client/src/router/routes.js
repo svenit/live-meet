@@ -22,6 +22,15 @@ export default [
         component: page("login"),
       },
       {
+        path: "signup",
+        name: "app.signup",
+        meta: {
+          middleware: [guest],
+          layout: "Full",
+        },
+        component: page("signup"),
+      },
+      {
         path: "",
         name: "app.index",
         meta: {

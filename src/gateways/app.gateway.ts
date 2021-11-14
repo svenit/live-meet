@@ -122,4 +122,9 @@ export class AppGateway
     const { roomId } = data;
     socket.in(roomId).emit('on-user-send-message', data);
   }
+
+  @SubscribeMessage('kick-user')
+  async handleKickUser(socket: Socket, userId) {
+    socket.to(userId).emit('on-kick-user', userId);
+  }
 }

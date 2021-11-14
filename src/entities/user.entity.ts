@@ -22,11 +22,6 @@ export class UserEntity {
   @Column({
     unique: true,
   })
-  email: string;
-
-  @Column({
-    unique: true,
-  })
   username: string;
 
   @Column({
@@ -72,10 +67,9 @@ export class UserEntity {
   }
 
   toResponse() {
-    const { id, email, username, fullName, createdAt, updatedAt, token } = this;
+    const { id, username, fullName, createdAt, updatedAt, token } = this;
     return {
       id,
-      email,
       username,
       fullName,
       createdAt,
@@ -85,12 +79,11 @@ export class UserEntity {
   }
 
   private get token() {
-    const { id, username, email } = this;
+    const { id, username } = this;
     return jwt.sign(
       {
         id,
         username,
-        email,
       },
       config.app.appSecret,
       { expiresIn: '7d' },

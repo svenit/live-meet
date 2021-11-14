@@ -52,7 +52,7 @@
               </a-form>
               <p class="text-center">
                 You don't have an account?
-                <router-link :to="{ name: 'app.login' }"
+                <router-link :to="{ name: 'app.signup' }"
                   >Signup now</router-link
                 >
               </p>
@@ -116,9 +116,6 @@ export default {
             this.$router.push({ name: "app.index" });
           }
         } catch (e) {
-          if (e.errors) {
-            return utilities.showFormErrors(this.formSignupInstance, e.errors);
-          }
           this.errorMessage = e.message;
         }
       });

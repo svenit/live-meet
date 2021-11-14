@@ -9,6 +9,10 @@
   border-radius: 12px;
   box-shadow: 0 4px 40px rgb(0 0 0 / 15%);
 }
+.login-content-container {
+  position: relative;
+  z-index: 999;
+}
 .login-panel {
   height: 100%;
   display: flex;

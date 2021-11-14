@@ -131,107 +131,126 @@
           </div>
         </div>
       </div>
-      <div class="group-button group-button-in-call position-absolute">
-        <a-button
-          class="mx-1"
-          :type="audioStatus ? 'default' : 'danger'"
-          shape="circle"
-          @click="toggleMicroStreaming"
-        >
-          <ion-icon
-            class="video-setup-icon"
-            :name="audioStatus ? 'mic' : 'mic-off'"
-          ></ion-icon>
-        </a-button>
-        <a-button
-          class="mx-1"
-          :type="videoStatus ? 'default' : 'danger'"
-          shape="circle"
-          @click="toggleVideoStreaming"
-          :disabled="isLoadingVideo"
-        >
-          <ion-icon
-            class="video-setup-icon"
-            :name="videoStatus ? 'videocam' : 'videocam-off'"
-          ></ion-icon>
-        </a-button>
-        <a-button
-          class="mx-1"
-          :type="isSharingScreen ? 'primary' : 'default'"
-          shape="circle"
-          @click="toggleScreenStreaming"
-        >
-          <ion-icon class="video-setup-icon" name="push"></ion-icon>
-        </a-button>
-        <a-button
-          class="mx-1 w-auto"
-          type="default"
-          shape="round"
-          @click="chatVisible = true, unReadMessage = 0, scrollToBottomChat()"
-        >
-          <a-badge :count="unReadMessage">
-            <ion-icon class="video-setup-icon"name="chatbubbles-outline"></ion-icon>
-          </a-badge>
-        </a-button>
-        <a-button
-          class="mx-1 w-auto"
-          type="default"
-          shape="round"
-          @click="userVisible = true"
-        >
-          <a-badge :count="users.length">
-            <ion-icon class="video-setup-icon"name="person-outline"></ion-icon>
-          </a-badge>
-        </a-button>
-        <a-button
-          class="mx-1 w-auto"
-          type="danger"
-          shape="round"
-          @click="quitRoom"
-        >
-          <ion-icon class="video-setup-icon" name="power"></ion-icon>
-        </a-button>
-        <a-drawer
-          title="Chat"
-          placement="right"
-          :closable="false"
-          :visible="chatVisible"
-          @close="chatVisible = false"
-          :width="300"
-        >
-          <div style="height: calc(100vh - 130px); overflow: auto" id="chat-log" class="chat-log">
-            <div v-for="(message, index) in messages" :key="index" class="mb-2">
-              <span class="font-weight-bold">{{ message.user.fullName }}: </span> {{ message.message }}
-            </div>
+      <div style="width: 94%" class="group-button group-button-in-call position-absolute">
+        <div class="px-1 w-100 d-flex justify-content-between align-items-center">
+          <div class="text-white">
+            {{ currentTime }}  <span class="mx-2">|</span>  {{ room.roomId }}
           </div>
-          <div class="chat-box position-absolute" style="bottom: 20px">
-            <a-input-search
-              placeholder="Type your message here..."
-              enter-button="Send"
-              @search="onSubmitChat"
-              v-model="messageText"
-            />
-          </div>
-        </a-drawer>
-        <a-drawer
-          title="Users"
-          placement="right"
-          :closable="false"
-          :visible="userVisible"
-          @close="userVisible = false"
-          :width="300"
-        >
-          <div id="chat-log" class="chat-log">
-            <div v-for="(userRoom, index) in users" :key="index" class="mb-3 media align-items-center">
-              <a-avatar class="mr-2">{{ userRoom.fullName[0] }}</a-avatar>
-              <div>
-                {{ userRoom.fullName }}
-                <span v-if="room.host.id == userRoom.id">( {{ userRoom.id == user.id ? 'You - Host' : 'Host' }} )</span>
-                <span v-else-if="userRoom.id == user.id">( You )</span>
+          <div style="left: -65px" class="position-relative">
+            <a-button
+              class="mx-1"
+              :type="audioStatus ? 'default' : 'danger'"
+              shape="circle"
+              @click="toggleMicroStreaming"
+            >
+              <ion-icon
+                class="video-setup-icon"
+                :name="audioStatus ? 'mic' : 'mic-off'"
+              ></ion-icon>
+            </a-button>
+            <a-button
+              class="mx-1"
+              :type="videoStatus ? 'default' : 'danger'"
+              shape="circle"
+              @click="toggleVideoStreaming"
+              :disabled="isLoadingVideo"
+            >
+              <ion-icon
+                class="video-setup-icon"
+                :name="videoStatus ? 'videocam' : 'videocam-off'"
+              ></ion-icon>
+            </a-button>
+            <a-button
+              class="mx-1"
+              :type="isSharingScreen ? 'primary' : 'default'"
+              shape="circle"
+              @click="toggleScreenStreaming"
+            >
+              <ion-icon class="video-setup-icon" name="push"></ion-icon>
+            </a-button>
+            <a-button
+              class="mx-1 w-auto"
+              type="danger"
+              shape="round"
+              @click="quitRoom"
+            >
+              <ion-icon class="video-setup-icon" name="power"></ion-icon>
+            </a-button>
+            <a-drawer
+              title="Chat"
+              placement="right"
+              :closable="true"
+              :visible="chatVisible"
+              @close="chatVisible = false"
+              :width="300"
+            >
+              <div style="height: calc(100vh - 130px); overflow: auto" id="chat-log" class="chat-log">
+                <div v-for="(message, index) in messages" :key="index" class="mb-2">
+                  <span class="font-weight-bold">{{ message.user.fullName }}: </span> {{ message.message }}
+                </div>
               </div>
-            </div>
+              <div class="chat-box position-absolute" style="bottom: 20px">
+                <a-input-search
+                  placeholder="Type your message here..."
+                  @search="onSubmitChat"
+                  v-model="messageText"
+                >
+                  <a-button slot="enterButton">
+                    <ion-icon name="send"></ion-icon>
+                  </a-button>
+                </a-input-search>
+              </div>
+            </a-drawer>
+            <a-drawer
+              title="Users"
+              placement="right"
+              :closable="true"
+              :visible="userVisible"
+              @close="userVisible = false"
+              :width="300"
+            >
+              <div id="chat-log" class="chat-log">
+                <div v-for="(userRoom, index) in users" :key="index" class="mb-3 d-flex justify-content-between align-items-center">
+                  <div class="media align-items-center">
+                    <a-avatar class="mr-2">{{ userRoom.fullName[0] }}</a-avatar>
+                    <div>
+                      <span class="font-weight-bold">{{ userRoom.fullName }}</span>
+                      <span v-if="room.host.id == userRoom.id">( {{ userRoom.id == user.id ? 'You - Host' : 'Host' }} )</span>
+                      <span v-else-if="userRoom.id == user.id">( You )</span>
+                    </div>
+                  </div>
+                  <div v-if="room.host.id != userRoom.id && room.host.id == user.id">
+                    <a-button @click="kickUser(userRoom.id)" shape="circle" type="default" class="mx-1">
+                      <a-icon type="user-delete" />
+                    </a-button>
+                  </div>
+                </div>
+              </div>
+            </a-drawer>
           </div>
-        </a-drawer>
+          <div>
+            <a-button
+              class="mx-1"
+              type="default"
+              shape="circle"
+              @click="userVisible = true"
+            >
+              <a-badge :count="users.length">
+                <ion-icon class="video-setup-icon"name="person"></ion-icon>
+              </a-badge>
+            </a-button>
+            <a-button
+              class="mx-1"
+              type="default"
+              shape="circle"
+              @click="chatVisible = true, unReadMessage = 0, scrollToBottomChat()"
+            >
+              <a-badge :count="unReadMessage">
+                <ion-icon class="video-setup-icon"name="chatbubbles"></ion-icon>
+              </a-badge>
+            </a-button>
+          </div>
+        </div>
       </div>
     </div>
     <div v-if="showBlockedModal" class="blocked-modal">
@@ -263,6 +282,12 @@
         </div>
       </div>
     </div>
+    <a-modal class="form-modal" @ok="validateRoomPassword" @cancel="passwordModalVisible = false" :visible="passwordModalVisible" title="Enter room's password">
+      <div class="ant-col ant-form-item-label">
+        <label class="ant-form-item-required">Password</label>
+      </div>
+      <a-input v-model="password" placeholder="Please enter password" />
+    </a-modal>
   </div>
 </template>
 <script>
@@ -301,7 +326,11 @@ export default {
       messageText: '',
       usersList: {},
       users: [],
-      userVisible: false
+      userVisible: false,
+      currentTime: '',
+      forceExit: false,
+      passwordModalVisible: false,
+      password: ''
     };
   },
   computed: {
@@ -320,11 +349,21 @@ export default {
     this.$root.$loading.start();
     await this.fetchRoom();
     this.$root.$loading.finish();
+    this.currentTime = this.getCurrentTime()
+    setInterval(() => {
+      this.currentTime = this.getCurrentTime()
+    }, 1000)
   },
   destroyed() {
+    this.forceExit = true
     socket.terminate()
   },
   methods: {
+    getCurrentTime() {
+      const date = new Date();
+      const time = `${date.getHours()}:${date.getMinutes()}`
+      return time
+    },
     async fetchRoom() {
       try {
         const roomId = this.$route.params.id;
@@ -488,6 +527,9 @@ export default {
       return this.stream;
     },
     connectToServer() {
+      if (this.room.isRequirePassword) {
+        return this.passwordModalVisible = true
+      }
       this.isInRoom = true;
       socket.createConnection();
       socket.onConnected(async socketId => {
@@ -562,6 +604,23 @@ export default {
           }, 1000)
         })
 
+        socket.on('on-kick-user', userId => {
+          this.$error({
+            title: "You have kicked out by Host",
+            content:
+              "You will be redirect to homepage after 3s",
+            okText: 'Exit',
+            onOk() {
+              this.$router.push({name: 'app.index'})
+            }
+          });
+          this.forceExit = true
+          setTimeout(() => {
+            this.$destroyAll()
+            this.$router.push({name: 'app.index'})
+          }, 3000)
+        })
+
         socket.on('on-user-share-screen', data => {
           try {
             const { userId, user } = data;
@@ -618,11 +677,13 @@ export default {
       });
       socket.onDisconnected(() => {
         try {
-          this.$error({
-            title: "Something went wrong",
-            content:
-              "You have entered the room at another device or could not connect to the server",
-          });
+          if (!this.forceExit) {
+            this.$error({
+              title: "Something went wrong",
+              content:
+                "You have entered the room at another device or could not connect to the server",
+            });
+          }
           this.stopVideo();
           this.stopAudio();
           this.$router.push({ name: "app.index" });
@@ -657,6 +718,7 @@ export default {
       }
       userNameVideo.classList.add('user-name-video')
       videoWrapper.appendChild(userNameVideo)
+
       videoWrapper.classList.add("video-item", "position-relative");
       videoWrapper.append(video);
       videoGrid.append(videoWrapper);
@@ -761,12 +823,22 @@ export default {
         this.$message.info('You are sharing your screen')
         this.isHasUserShareScreen = true
         const mainVideo = document.querySelector('[data-video-name="main-video"]')
-        mainVideo.style.display = 'block'
-        mainVideo.srcObject = stream;
-        mainVideo.addEventListener("loadedmetadata", () => {
-          mainVideo.play();
-        });
+        if (mainVideo) {
+          mainVideo.style.display = 'block'
+          mainVideo.srcObject = stream;
+          mainVideo.addEventListener("loadedmetadata", () => {
+            mainVideo.play();
+          });
+        }
+        const myMainVideo = document.getElementById('my-main-video')
+        if (myMainVideo) {
+          myMainVideo.srcObject = stream
+          myMainVideo.addEventListener("loadedmetadata", () => {
+            myMainVideo.play();
+          });
+        }
       } catch (e) {
+        console.log(e)
         this.stopScreenShare();
       }
     },
@@ -939,10 +1011,41 @@ export default {
       if (data.success) {
         this.users = data.users
       }
+    },
+    kickUser(userId) {
+      this.$confirm({
+        title: 'Are you sure?',
+        content: 'Kick out this user from room?',
+        onOk() {
+          socket.emit('kick-user', userId)
+        }
+      })
+    },
+    async validateRoomPassword() {
+      const { data } = await api.room.validatePassword({
+        roomId: this.room.roomId,
+        password: this.password
+      })
+      if (!data.success) {
+        return this.$message.error('Password is incorrect')
+      }
+      this.room.isRequirePassword = false
+      this.passwordModalVisible = false
+      this.connectToServer()
     }
   },
 };
 </script>
 <style scoped>
 @import "../assets/styles/room.css";
+.form-modal >>> .ant-modal {
+  width: 400px !important;
+}
+.form-modal >>> label {
+  line-height: 20px;
+  margin-bottom: 0px !important;
+}
+.form-modal >>> .ant-form-item {
+  margin-bottom: 0px;
+}
 </style>
