@@ -1,5 +1,4 @@
-import { UserRepository } from '@/repository';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   registerDecorator,
   ValidationArguments,
@@ -37,15 +36,18 @@ export function Same(property: string, validationOptions?: ValidationOptions) {
 @Injectable()
 export class NotExistInRule implements ValidatorConstraintInterface {
   public table: string;
-  async validate() {
+  public propertyName: string;
+  async validate(value: any) {
     const repository = getRepository(this.table);
-    const data = await repository.find(1);
-    console.log(data);
-    return false;
+    const data = await repository.findOne({
+      [this.propertyName]: value,
+    });
+    return !data;
   }
 
   defaultMessage(args: ValidationArguments) {
-    return 'X';
+    const { property } = args;
+    return `${property} is already used`;
   }
 }
 
@@ -53,8 +55,9 @@ export function NotExistIn(
   table: string,
   validationOptions?: ValidationOptions,
 ) {
-  NotExistInRule.prototype.table = table;
   return function (object: any, propertyName: string) {
+    NotExistInRule.prototype.table = table;
+    NotExistInRule.prototype.propertyName = propertyName;
     registerDecorator({
       name: 'NotExistIn',
       target: object.constructor,

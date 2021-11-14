@@ -39,6 +39,7 @@ const Socket = {
     this.socketInstance.emit(channel, data);
   },
   terminate() {
+    this.socketInstance.disconnect();
     console.log("Terminated socket");
     this.emit("terminate");
   },

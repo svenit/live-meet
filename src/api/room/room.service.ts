@@ -18,7 +18,7 @@ export class RoomService {
     const roomId = utilities.strRandom(20);
     const room = this.roomRepo.create({
       name,
-      password,
+      password: password ?? null,
       userId,
       roomId,
       userRooms: [{ userId }],

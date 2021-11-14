@@ -31,7 +31,9 @@ export class RoomEntity {
   })
   userId: number;
 
-  @Column('text')
+  @Column('text', {
+    nullable: true,
+  })
   password: string;
 
   @Column({

@@ -2,10 +2,14 @@
   <div class="position-relative">
     <template v-if="!isInRoom">
       <div class="header d-flex py-1 border-bottom">
-        <div class="container d-flex">
-          <div class="media align-items-center">
+        <div class="container d-flex justify-content-between align-items-center">
+          <div @click="$router.push({name: 'app.index'})" class="pointer media align-items-center">
             <img style="width: 50px" src="@/assets/images/logo.png" alt="" />
             <h6>Live Meet</h6>
+          </div>
+          <div class="d-flex align-items-center">
+            <a-avatar class="ml-3 mr-2">{{ user.fullName ? user.fullName[0] : 'U' }}</a-avatar>
+            <div>{{ user.fullName }}</div>
           </div>
         </div>
       </div>
@@ -89,12 +93,15 @@
       <div class="video-grid-container row w-100 h-100 m-0 p-5">
         <div
           :class="[
-            !hasOtherUsers ? 'col-12' : 'col-8',
+            hasOtherUsers ? 'col-8' : 'col-12',
             { 'd-none': !isHasUserShareScreen && hasOtherUsers },
           ]"
           id="main-screen"
           class="position-relative p-1"
         >
+          <div class="user-name-video">
+            You
+          </div>
           <video
             class="w-100 main-video"
             :class="{ 'presentation-mode': isSharingScreen }"
@@ -103,11 +110,14 @@
         </div>
         <div
           v-show="hasOtherUsers"
-          :class="!isHasUserShareScreen && hasOtherUsers ? 'col-12' : 'col-4'"
+          :class="[!isHasUserShareScreen && hasOtherUsers ? 'col-12' : 'col-3 video-grid-focus', {'d-none': !hasOtherUsers}]"
           class="video-box p-1"
           id="video-grid"
         >
-          <div id="my-video-grid" class="video-item position-relative">
+          <div v-show="hasOtherUsers" id="my-video-grid" class="video-item position-relative">
+            <div class="user-name-video">
+              You
+            </div>
             <video
               :class="{ 'presentation-mode': isSharingScreen }"
               autoplay
@@ -155,13 +165,73 @@
         </a-button>
         <a-button
           class="mx-1 w-auto"
+          type="default"
+          shape="round"
+          @click="chatVisible = true, unReadMessage = 0, scrollToBottomChat()"
+        >
+          <a-badge :count="unReadMessage">
+            <ion-icon class="video-setup-icon"name="chatbubbles-outline"></ion-icon>
+          </a-badge>
+        </a-button>
+        <a-button
+          class="mx-1 w-auto"
+          type="default"
+          shape="round"
+          @click="userVisible = true"
+        >
+          <a-badge :count="users.length">
+            <ion-icon class="video-setup-icon"name="person-outline"></ion-icon>
+          </a-badge>
+        </a-button>
+        <a-button
+          class="mx-1 w-auto"
           type="danger"
           shape="round"
-          @click="toggleVideoStreaming"
-          :disabled="isLoadingVideo"
+          @click="quitRoom"
         >
           <ion-icon class="video-setup-icon" name="power"></ion-icon>
         </a-button>
+        <a-drawer
+          title="Chat"
+          placement="right"
+          :closable="false"
+          :visible="chatVisible"
+          @close="chatVisible = false"
+          :width="300"
+        >
+          <div style="height: calc(100vh - 130px); overflow: auto" id="chat-log" class="chat-log">
+            <div v-for="(message, index) in messages" :key="index" class="mb-2">
+              <span class="font-weight-bold">{{ message.user.fullName }}: </span> {{ message.message }}
+            </div>
+          </div>
+          <div class="chat-box position-absolute" style="bottom: 20px">
+            <a-input-search
+              placeholder="Type your message here..."
+              enter-button="Send"
+              @search="onSubmitChat"
+              v-model="messageText"
+            />
+          </div>
+        </a-drawer>
+        <a-drawer
+          title="Users"
+          placement="right"
+          :closable="false"
+          :visible="userVisible"
+          @close="userVisible = false"
+          :width="300"
+        >
+          <div id="chat-log" class="chat-log">
+            <div v-for="(userRoom, index) in users" :key="index" class="mb-3 media align-items-center">
+              <a-avatar class="mr-2">{{ userRoom.fullName[0] }}</a-avatar>
+              <div>
+                {{ userRoom.fullName }}
+                <span v-if="room.host.id == userRoom.id">( {{ userRoom.id == user.id ? 'You - Host' : 'Host' }} )</span>
+                <span v-else-if="userRoom.id == user.id">( You )</span>
+              </div>
+            </div>
+          </div>
+        </a-drawer>
       </div>
     </div>
     <div v-if="showBlockedModal" class="blocked-modal">
@@ -225,6 +295,13 @@ export default {
       peersList: [],
       isSharingScreen: false,
       isHasUserShareScreen: false,
+      chatVisible: false,
+      messages: [],
+      unReadMessage: 0,
+      messageText: '',
+      usersList: {},
+      users: [],
+      userVisible: false
     };
   },
   computed: {
@@ -236,12 +313,16 @@ export default {
     },
     ...mapState("auth", {
       tokenUser: state => state.tokenUser,
+      user: (state) => state.user,
     }),
   },
   async created() {
     this.$root.$loading.start();
     await this.fetchRoom();
     this.$root.$loading.finish();
+  },
+  destroyed() {
+    socket.terminate()
   },
   methods: {
     async fetchRoom() {
@@ -287,7 +368,6 @@ export default {
             this.analyserTune(stream, "preview-tune");
           }
         } catch (err) {
-          console.log(err);
           if (!this.isAudioBlocked) {
             this.$warning({
               title: "Please accept access microphone permission",
@@ -303,13 +383,13 @@ export default {
     },
     stopAudio() {
       this.audioStatus = false;
-      this.audioStream.getTracks()[0].stop();
       this.voiceTune = 0;
       if (this.audioContext) {
         this.audioContext.close();
       }
+      this.audioStream.getAudioTracks()[0].enabled = false;
       if (this.stream) {
-        this.stream.getAudioTracks()[0].stop();
+        this.stream.getAudioTracks()[0].enabled = false;
       }
     },
     async requestVideo() {
@@ -351,6 +431,10 @@ export default {
           }
         }
       } else {
+        socket.emit('user-turn-off-camera', {
+          roomId: this.room.roomId,
+          userId: this.peerId
+        })
         this.$message.success("Camera is turn off");
         this.stopVideo();
       }
@@ -365,9 +449,9 @@ export default {
         mainVideo.pause();
         mainVideo.src = "";
       }
-      this.videoStream.getTracks()[0].stop();
+      this.videoStream.getVideoTracks()[0].enabled = false;
       if (this.stream) {
-        this.stream.getVideoTracks()[0].stop();
+        this.stream.getVideoTracks()[0].enabled = false;
       }
     },
     async checkRequestPermission(type, permission) {
@@ -434,6 +518,7 @@ export default {
             }
             this.addMyVideo(this.stream);
           }
+          this.getUsersInRoom()
         });
 
         peer.on("disconnected", () => {
@@ -451,13 +536,63 @@ export default {
           });
         });
 
-        socket.on("user-connected", async userId => {
-          this.$message.info(`${userId} joined the room`);
+        socket.on('on-user-send-message', data => {
+          this.messages.push(data)
+          if (!this.chatVisible) {
+            this.unReadMessage += 1
+          } else {
+            this.scrollToBottomChat()
+          }
+        })
+
+        socket.on("user-connected", async ({userId, fullName}) => {
+          this.$message.info(`${fullName} joined the room`);
           await this.getStream();
+          this.usersList[userId] = fullName
           this.connectToNewUser(userId, this.stream);
+          this.getUsersInRoom()
         });
 
-        socket.on("user-disconnected", userId => {
+        socket.on('on-user-turn-off-camera', userId => {
+          setTimeout(() => {
+            const userVideo = document.getElementById(`video-${userId}`);
+            if (userVideo) {
+              userVideo.src = '';
+            }
+          }, 1000)
+        })
+
+        socket.on('on-user-share-screen', data => {
+          try {
+            const { userId, user } = data;
+            this.isHasUserShareScreen = true
+            const userShareScreenVideo = document.getElementById(`video-${userId}`)
+            const currentMainVideo = document.querySelector('[data-video-name="main-video"]')
+            currentMainVideo.srcObject = userShareScreenVideo.srcObject
+            currentMainVideo.addEventListener("loadedmetadata", () => {
+              currentMainVideo.play();
+            });
+            user && this.$message.info(`${user.fullName} is sharing screen`)
+          } catch (e) {
+            console.log(e)
+          }
+        })
+
+        socket.on('on-user-stop-share-screen', data => {
+          try {
+            const { userId, user } = data;
+            this.isHasUserShareScreen = false
+            const currentMainVideo = document.querySelector('[data-video-name="main-video"]')
+            if (currentMainVideo.getAttribute('id') == `main-video-${userId}`) {
+              this.$message.info(`${user.fullName} has stopped sharing screen`)
+              currentMainVideo.style.display = 'none'
+            }
+          } catch (e) {
+            console.log(e)
+          }
+        })
+
+        socket.on("user-disconnected", ({userId, fullName}) => {
           const peerIndex = this.peersList.findIndex(peer => peer == userId);
           if (peerIndex != -1) {
             this.peersList.splice(peerIndex, 1);
@@ -477,24 +612,31 @@ export default {
             const myMainVideo = document.getElementById("my-main-video");
             myMainVideo.style.display = "block";
           }
-          this.$message.info(`${userId} left the room`);
+          this.$message.info(`${fullName} left the room`);
+          this.getUsersInRoom()
         });
       });
       socket.onDisconnected(() => {
-        this.$error({
-          title: "Something went wrong",
-          content:
-            "You have entered the room at another device or could not connect to the server",
-        });
-        this.stopVideo();
-        this.stopAudio();
-        this.$router.push({ name: "app.index" });
+        try {
+          this.$error({
+            title: "Something went wrong",
+            content:
+              "You have entered the room at another device or could not connect to the server",
+          });
+          this.stopVideo();
+          this.stopAudio();
+          this.$router.push({ name: "app.index" });
+        } catch (e) {
+          this.$router.push({ name: "app.index" });
+        }
       });
     },
-    addVideoToStream(stream, peerId) {
+    async addVideoToStream(stream, peerId) {
       const video = document.createElement("video");
       video.srcObject = stream;
-      video.play();
+      video.addEventListener("loadedmetadata", () => {
+        video.play();
+      });
       video.muted = true;
       video.classList.add("remote-video");
       video.setAttribute("id", `video-${peerId}`);
@@ -504,6 +646,17 @@ export default {
       const videoGrid = document.getElementById("video-grid");
       const videoWrapper = document.createElement("div");
       videoWrapper.setAttribute("id", `video-container-${peerId}`);
+      const userNameVideo = document.createElement('div')
+      const { data } = await api.room.getUserByPeerId({
+        peerId,
+        roomId: this.room.roomId
+      })
+      userNameVideo.innerText = 'Anonymous'
+      if (data.success) {
+        userNameVideo.innerText = data.fullName
+      }
+      userNameVideo.classList.add('user-name-video')
+      videoWrapper.appendChild(userNameVideo)
       videoWrapper.classList.add("video-item", "position-relative");
       videoWrapper.append(video);
       videoGrid.append(videoWrapper);
@@ -519,6 +672,7 @@ export default {
       const mainRemoteVideo = document.createElement("video");
       mainRemoteVideo.classList.add("w-100", "main-video");
       mainRemoteVideo.setAttribute("id", `main-video-${peerId}`);
+      mainRemoteVideo.setAttribute("data-video-name", `main-video`);
       mainRemoteVideo.srcObject = stream;
       mainRemoteVideo.play();
       mainRemoteVideo.muted = true;
@@ -600,12 +754,30 @@ export default {
             sender.replaceTrack(screenTrack);
           });
         }
+        socket.emit('user-share-screen', {
+          roomId: this.room.roomId,
+          userId: this.peerId
+        })
+        this.$message.info('You are sharing your screen')
+        this.isHasUserShareScreen = true
+        const mainVideo = document.querySelector('[data-video-name="main-video"]')
+        mainVideo.style.display = 'block'
+        mainVideo.srcObject = stream;
+        mainVideo.addEventListener("loadedmetadata", () => {
+          mainVideo.play();
+        });
       } catch (e) {
         this.stopScreenShare();
-        console.log(e);
       }
     },
     stopScreenShare() {
+      this.isHasUserShareScreen = false;
+      const mainVideo = document.querySelector('[data-video-name="main-video"]')
+      if (mainVideo) mainVideo.style.display = 'none';
+      socket.emit('user-stop-share-screen', {
+        roomId: this.room.roomId,
+        userId: this.peerId
+      })
       this.isSharingScreen = false;
       this.addMyVideo(this.videoStream);
       if (this.connectedPeers) {
@@ -739,6 +911,35 @@ export default {
 
       return Object.assign(track, { enabled: false });
     },
+    quitRoom() {
+      window.location.href = '/'
+    },
+    onSubmitChat(message) {
+      if (message && message.trim() != '') {
+        const data = {
+          roomId: this.room.roomId,
+          userId: this.peerId,
+          user: this.user,
+          message
+        }
+        socket.emit('send-message', data)
+        this.messages.push(data)
+        this.messageText = ''
+        this.scrollToBottomChat()
+      }
+    },
+    scrollToBottomChat() {
+      setTimeout(() => {
+        const chatLog = document.getElementById("chat-log");
+        chatLog.scrollTop = chatLog.scrollHeight;
+      })
+    },
+    async getUsersInRoom() {
+      const { data } = await api.room.getUsersInRoom(this.room.roomId)
+      if (data.success) {
+        this.users = data.users
+      }
+    }
   },
 };
 </script>

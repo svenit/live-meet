@@ -70,14 +70,56 @@ export class AppGateway
     roomStorage.addUserToRoom(roomId, {
       socketId: socket.id,
       id,
+      userId,
       fullName,
       config: userConfig,
       time: new Date().getTime(),
     });
     socket.join([roomId, id]);
-    socket.to(roomId).emit('user-connected', userId);
-    socket.on('disconnect', () => {
-      socket.to(roomId).emit('user-disconnected', userId);
+    socket.to(roomId).emit('user-connected', {
+      userId,
+      fullName,
     });
+    socket.on('disconnect', () => {
+      roomStorage.removeUserFromRoom(roomId, id);
+      socket.to(roomId).emit('user-disconnected', {
+        userId,
+        fullName,
+      });
+    });
+  }
+
+  @SubscribeMessage('user-turn-off-camera')
+  async handleTurnOffCamera(socket: Socket, data) {
+    const { roomId, userId } = data;
+    socket.to(roomId).emit('on-user-turn-off-camera', userId);
+  }
+
+  @SubscribeMessage('user-share-screen')
+  async handleShareScreen(socket: Socket, data) {
+    const { roomId, userId } = data;
+    roomStorage.addUserShareScreen(roomId, userId);
+    const user = roomStorage.getUserFromRoom(roomId, userId);
+    socket.to(roomId).emit('on-user-share-screen', {
+      userId,
+      listUsersShareScreen: roomStorage.getUserShareScreen(roomId),
+      user,
+    });
+  }
+
+  @SubscribeMessage('user-stop-share-screen')
+  async handleStopShareScreen(socket: Socket, data) {
+    const { roomId, userId } = data;
+    const user = roomStorage.getUserFromRoom(roomId, userId);
+    socket.to(roomId).emit('on-user-stop-share-screen', {
+      userId,
+      user,
+    });
+  }
+
+  @SubscribeMessage('send-message')
+  async handleSendMessage(socket: Socket, data) {
+    const { roomId } = data;
+    socket.in(roomId).emit('on-user-send-message', data);
   }
 }

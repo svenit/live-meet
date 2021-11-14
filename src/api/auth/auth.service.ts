@@ -20,11 +20,6 @@ export class AuthService {
   }
 
   async signup(data: SingupDTO): Promise<UserResponse> {
-    const { username, email } = data;
-    const isUserExists = await this.userRepo.exists({ username, email });
-    if (isUserExists) {
-      throw new HttpException('User already exist', HttpStatus.BAD_REQUEST);
-    }
     const user = this.userRepo.create(data);
     await this.userRepo.save(user);
     return user.toResponse();

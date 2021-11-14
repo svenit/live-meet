@@ -1,49 +1,48 @@
-import auth from '@/middlewares/auth';
-import guest from '@/middlewares/guest';
+import auth from "@/middlewares/auth";
+import guest from "@/middlewares/guest";
 
-const page = (path) => () =>
-  import(`@/pages/${path}`).then((m) => m.default || m);
+const page = path => () => import(`@/pages/${path}`).then(m => m.default || m);
 
 export default [
   {
-    path: '/',
+    path: "/",
     component: {
       render(c) {
-        return c('router-view');
+        return c("router-view");
       },
     },
     children: [
       {
-        path: 'login',
-        name: 'app.login',
+        path: "login",
+        name: "app.login",
         meta: {
           middleware: [guest],
-          layout: 'Full',
+          layout: "Full",
         },
-        component: page('login'),
+        component: page("login"),
       },
       {
-        path: '',
-        name: 'app.index',
+        path: "",
+        name: "app.index",
         meta: {
           middleware: [auth],
-          layout: 'Default',
+          layout: "Default",
         },
-        component: page('index'),
+        component: page("index"),
       },
       {
-        path: 'r/:id',
-        name: 'app.room',
+        path: "r/:id",
+        name: "app.room",
         meta: {
           middleware: [auth],
-          layout: 'Full',
+          layout: "Full",
         },
-        component: page('room'),
+        component: page("room"),
       },
       {
-        path: '*',
-        name: 'app.notfound',
-        redirect: '/',
+        path: "*",
+        name: "app.notfound",
+        redirect: "/",
       },
     ],
   },

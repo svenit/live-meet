@@ -1,5 +1,4 @@
 import { Same, NotExistIn } from '@/decorator';
-import { UserRepository } from '@/repository';
 import {
   IsEmail,
   IsNotEmpty,
@@ -22,10 +21,15 @@ export class SingupDTO {
   @Matches(/^[a-zA-Z0-9_]+$/, {
     message: 'Username format is invalid',
   })
-  @NotExistIn('users')
+  @NotExistIn('users', {
+    message: 'Username is already used',
+  })
   username: string;
 
   @IsEmail()
+  @NotExistIn('users', {
+    message: 'Email is already used',
+  })
   email: string;
 
   @IsNotEmpty()

@@ -1,10 +1,10 @@
-import axios from 'axios';
+import axios from "axios";
 
 export default {
   login(params) {
-    return axios.post('/auth/login', params);
+    return axios.post("/auth/login", params);
   },
   fetchUser() {
-    return axios.get('/auth/me');
+    return axios.get("/auth/me");
   },
 };
