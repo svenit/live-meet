@@ -62,6 +62,11 @@ export class RoomController {
     return this.roomService.validatePassword({ userId, roomId, password });
   }
 
+  @Post(':id/join-room')
+  insertIntoRoom(@User('id') userId: number, @Param('id') roomId: string) {
+    return this.roomService.insertIntoRoom({ userId, roomId });
+  }
+
   @Post(':id/join')
   joinRoom(@Param('id') roomId: string) {
     return this.roomService.joinRoom(roomId);

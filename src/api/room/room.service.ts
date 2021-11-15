@@ -41,7 +41,7 @@ export class RoomService {
     let isRequirePassword = !!room.password && !isHost;
     let isBanned = false;
 
-    if (room.userRooms.length > 0) {
+    if (room.userRooms.length > 0 && isRequirePassword) {
       isRequirePassword = !isJoined;
       isBanned = room.userRooms[0].isBanned && !isHost;
     }
@@ -64,14 +64,27 @@ export class RoomService {
       throw new HttpException('Can not found this room', HttpStatus.NOT_FOUND);
     }
     if (room.password == password) {
-      const userRoom = this.userRoomRepo.create({
-        userId,
-        roomId: room.id,
-      });
-      await this.userRoomRepo.save(userRoom);
       return {
         success: true,
       };
+    }
+  }
+
+  async insertIntoRoom({ userId, roomId }) {
+    try {
+      const userRoomExists = await this.userRoomRepo.findOne({
+        userId,
+        roomId,
+      });
+      if (!userRoomExists) {
+        const userRoom = this.userRoomRepo.create({
+          userId,
+          roomId,
+        });
+        return this.userRoomRepo.save(userRoom);
+      }
+    } catch (e) {
+      console.log(e);
     }
   }
 

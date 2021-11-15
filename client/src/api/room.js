@@ -31,4 +31,7 @@ export default {
   getRoomsGuest() {
     return axios.get(`/room/guest`);
   },
+  insertIntoRoom(roomId) {
+    return axios.post(`/room/${roomId}/join-room`);
+  },
 };

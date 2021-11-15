@@ -526,16 +526,21 @@ export default {
       }
       return this.stream;
     },
-    connectToServer() {
+    async connectToServer() {
       if (this.room.isRequirePassword) {
         return this.passwordModalVisible = true
       }
+      await api.room.insertIntoRoom(this.room.id)
       this.isInRoom = true;
       socket.createConnection();
       socket.onConnected(async socketId => {
         await this.getStream();
 
-        const peer = new Peer();
+        const peer = new Peer(undefined, {
+          path: "/peerjs",
+          host: "/",
+          port: "3000"
+        });
         this.peer = peer;
 
         peer.on("open", id => {
