@@ -32,7 +32,8 @@ export class HttpErrorFilter implements ExceptionFilter {
 
       response.status(status).json(errorResponse);
     } catch (e) {
-      return response.status(500).send('Internal Server Error');
+      console.log(e);
+      return response.status(500).send(`Internal Server Error: ${e.message}`);
     }
   }
 }
