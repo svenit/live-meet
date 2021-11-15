@@ -32,10 +32,14 @@ export class UserEntity {
   @Column({
     name: 'full_name',
     nullable: true,
+    charset: 'utf8mb4_unicode_ci',
   })
   fullName: string;
 
-  @Column('text')
+  @Column({
+    type: 'text',
+    charset: 'utf8mb4_unicode_ci',
+  })
   password: string;
 
   @CreateDateColumn({

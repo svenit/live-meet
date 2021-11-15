@@ -22,7 +22,10 @@ export class RoomEntity {
   })
   roomId: string;
 
-  @Column()
+  @Column({
+    type: 'text',
+    charset: 'utf8mb4_unicode_ci',
+  })
   name: string;
 
   @Column({
@@ -31,7 +34,9 @@ export class RoomEntity {
   })
   userId: number;
 
-  @Column('text', {
+  @Column({
+    type: 'text',
+    charset: 'utf8mb4_unicode_ci',
     nullable: true,
   })
   password: string;
