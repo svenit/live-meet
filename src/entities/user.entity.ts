@@ -32,13 +32,13 @@ export class UserEntity {
   @Column({
     name: 'full_name',
     nullable: true,
-    charset: 'utf8mb4_unicode_ci',
+    charset: 'utf8',
   })
   fullName: string;
 
   @Column({
     type: 'text',
-    charset: 'utf8mb4_unicode_ci',
+    charset: 'utf8',
   })
   password: string;
 

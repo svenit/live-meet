@@ -11,5 +11,5 @@
   "cli": {
     "migrationsDir": "src/database/migrations"
   },
-  "charset": "utf8mb4_unicode_ci"
+  "charset": "utf8"
 }
