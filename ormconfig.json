@@ -10,5 +10,6 @@
   "migrations": ["dist/src/database/migrations/*.js"],
   "cli": {
     "migrationsDir": "src/database/migrations"
-  }
+  },
+  "charset": "utf8mb4_unicode_ci"
 }
