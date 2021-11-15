@@ -20,9 +20,14 @@ export class AuthService {
   }
 
   async signup(data: SingupDTO): Promise<UserResponse> {
-    const user = this.userRepo.create(data);
-    await this.userRepo.save(user);
-    return user.toResponse();
+    try {
+      const user = this.userRepo.create(data);
+      await this.userRepo.save(user);
+      return user.toResponse();
+    } catch (e) {
+      console.log(e);
+      throw new HttpException('Something was wrong', HttpStatus.BAD_REQUEST);
+    }
   }
 
   async getUser(data: Partial<User>): Promise<UserResponse> {
