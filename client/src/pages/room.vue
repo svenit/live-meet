@@ -535,11 +535,7 @@ export default {
       socket.onConnected(async socketId => {
         await this.getStream();
 
-        const peer = new Peer({
-          config: {
-            iceServers: [{ url: "stun:stun.l.google.com:19302" }],
-          },
-        });
+        const peer = new Peer();
         this.peer = peer;
 
         peer.on("open", id => {
